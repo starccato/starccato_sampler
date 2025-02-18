@@ -3,6 +3,19 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+test_output
+*.png
+*.nc
+*.csv
+*.npz
+*.npy
+*.txt
+*.log
+*.json
+*.hdf5
+*.h5
+*_version.py
+*.idea
 # C extensions
 *.so
 
