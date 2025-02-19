@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 name = "starccato_sampler"
 dynamic = ["version"] # scm versioning (using tags)
 requires-python = ">=3.9"
-description = "JTools for parameter estimation with JAX-VAE model."
+description = "Tools for parameter estimation with JAX-VAE model."
 readme = "README.rst"
 authors = [
     { name = "Starccato Team", email = "avi.vajpeyi@gmail.com" },
