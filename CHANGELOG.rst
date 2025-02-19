@@ -5,16 +5,41 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.4:
+
+v0.0.4 (2025-02-19)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`06b6ccc`_)
+
+.. _06b6ccc: https://github.com/starccato/starccato_sampler/commit/06b6cccc7b8f5f54b93f559e1f6a276c815c0de4
+
+
 .. _changelog-v0.0.3:
 
 v0.0.3 (2025-02-19)
 ===================
+
+Bug Fixes
+---------
+
+* fix: remove gss (`fc6ce51`_)
+
+Chores
+------
+
+* chore(release): 0.0.3 (`840a8d8`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`43e37e8`_)
 
+.. _fc6ce51: https://github.com/starccato/starccato_sampler/commit/fc6ce51aac15d45056035acf028774ca6628a0f5
+.. _840a8d8: https://github.com/starccato/starccato_sampler/commit/840a8d81b22235b22c426a3f18d0c0a65738a717
 .. _43e37e8: https://github.com/starccato/starccato_sampler/commit/43e37e82d8c7da483aba4824b4fbc54bed61824a
 
 
