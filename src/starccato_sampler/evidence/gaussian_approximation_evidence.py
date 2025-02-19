@@ -26,23 +26,23 @@ is approximately Gaussian around its mode, we
 evaluate at θ = μ, the posterior mean.
 
 
-1. Prior at θ = μ:
-     p(μ) = ∏[i=1 to d] (1/√(2π) * exp( - μᵢ² / 2 ))
-          = (2π)^(-d/2) * exp( - (1/2) * Σ[i=1 to d] μᵢ² )
+1. Prior at θ = θr:
+     p(μ) = ∏[i=1 to d] (1/√(2π) * exp( - θrᵢ² / 2 ))
+          = (2π)^(-d/2) * exp( - (1/2) * Σ[i=1 to d] θrᵢ² )
 
-2. Posterior at θ = μ:
+2. Posterior at θ = θr:
      p(μ | D) = ∏[i=1 to d] (1 / (√(2π) * σᵢ))
               = (2π)^(-d/2) * ∏[i=1 to d] (1/σᵢ)
 
 3. Combining to Get p(D):
-     p(D) = p(D | μ) * (p(μ) / p(μ | D))
-          = p(D | μ) * { (2π)^(-d/2) * exp( - (1/2) * Σ[i=1 to d] μᵢ² ) }
+     p(D) = p(D | θr) * (p(θr) / p(θr | D))
+          = p(D | θr) * { (2π)^(-d/2) * exp( - (1/2) * Σ[i=1 to d] θrᵢ² ) }
                       / { (2π)^(-d/2) * ∏[i=1 to d] (1/σᵢ) }
-          = p(D | μ) * exp( - (1/2) * Σ[i=1 to d] μᵢ² ) * ∏[i=1 to d] σᵢ
+          = p(D | θr) * exp( - (1/2) * Σ[i=1 to d] θrᵢ² ) * ∏[i=1 to d] σᵢ
 
 Log-Domain Expression:
-     log p(D) = log p(D | μ)
-              - (1/2) * Σ[i=1 to d] μᵢ²
+     log p(D) = log p(D | θr)
+              - (1/2) * Σ[i=1 to d] θrᵢ²
               + Σ[i=1 to d] log(σᵢ)
 """
 
