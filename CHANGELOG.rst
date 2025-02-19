@@ -5,10 +5,33 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.3:
+
+v0.0.3 (2025-02-19)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`43e37e8`_)
+
+.. _43e37e8: https://github.com/starccato/starccato_sampler/commit/43e37e82d8c7da483aba4824b4fbc54bed61824a
+
+
 .. _changelog-v0.0.2:
 
 v0.0.2 (2025-02-19)
 ===================
+
+Bug Fixes
+---------
+
+* fix: remove harmonic dependancies (`f4e1f2d`_)
+
+Chores
+------
+
+* chore(release): 0.0.2 (`f85ee6d`_)
 
 Unknown
 -------
@@ -17,6 +40,8 @@ Unknown
 
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`6d7dff7`_)
 
+.. _f4e1f2d: https://github.com/starccato/starccato_sampler/commit/f4e1f2dcd850633e3bcaba2ed59918b98ba0d5dc
+.. _f85ee6d: https://github.com/starccato/starccato_sampler/commit/f85ee6d2e73c6bf782d629f9780acd123662140c
 .. _3069337: https://github.com/starccato/starccato_sampler/commit/306933712d30881097cad7c62d6bd975a8281940
 .. _6d7dff7: https://github.com/starccato/starccato_sampler/commit/6d7dff774a28b5dc93dfa913b074baa736eb794f
 
