@@ -29,10 +29,10 @@ def _bayesian_model(
     # Generate the signal
     y_model = starccato_vae.generate(z=theta, rng=rng)
 
-    sigma = numpyro.sample("sigma", dist.HalfNormal(1))  # Noise level
+    # sigma = numpyro.sample("sigma", dist.HalfNormal(1))  # Noise level
 
     # Compute the untempered log–likelihood (Assuming Gaussian noise)
-    lnl = dist.Normal(y_model, sigma).log_prob(y_obs).sum()
+    lnl = dist.Normal(y_model, 1).log_prob(y_obs).sum()
 
     # Temper the likelihood (the power likelihood)
     numpyro.factor("likelihood", beta * lnl)

@@ -45,7 +45,7 @@ def compute_stepping_stone_evidence(
 
     steps, ntemps = ln_likes.shape
     if ntemps > steps:
-        raise ValueError("Sus.. ntemps > steps.")
+        raise ValueError(f"Sus.. ntemps {ntemps} > steps {steps}")
 
     ln_z, ln_ratio = _calculate_stepping_stone(ln_likes, betas)
 

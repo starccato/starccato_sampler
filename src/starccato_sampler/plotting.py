@@ -15,10 +15,10 @@ def sampler_diagnostic_plots(inf_object: az.InferenceData, outdir: str):
     plt.savefig(os.path.join(outdir, "trace_plot.png"))
     plt.close()
 
-    # Plot the corner plot
-    corner.corner(inf_object, var_names=["z"])
-    plt.savefig(os.path.join(outdir, "corner_plot.png"))
-    plt.close()
+    # # Plot the corner plot
+    # corner.corner(inf_object, var_names=["z"])
+    # plt.savefig(os.path.join(outdir, "corner_plot.png"))
+    # plt.close()
 
 
 def plot_ci(

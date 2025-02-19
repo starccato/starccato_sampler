@@ -1,3 +1,4 @@
+from .gaussian_approximation_evidence import compute_gaussian_approx_evidence
 from .gss_evidence import compute_gss_evidence
 from .harmonic_mean_evidence import compute_harmonic_mean_evidence
 from .stepping_stone_evidence import compute_stepping_stone_evidence
