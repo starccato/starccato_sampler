@@ -8,6 +8,7 @@ import jax.random as random
 import numpy as np
 from numpyro.infer import MCMC, NUTS
 from starccato_jax import StarccatoVAE
+from starccato_jax.credible_intervals import coverage_probability, pointwise_ci
 from tqdm.auto import tqdm
 
 from .core import _run_mcmc
@@ -42,6 +43,11 @@ def sample(
 
     rng = random.PRNGKey(rng_int)
     starccato_vae = StarccatoVAE(model_path)
+    reconstruction_coverage = starccato_vae.reconstruction_coverage(
+        data, n=200, ci=0.9
+    )
+    print(f"Reconstruction coverage: {reconstruction_coverage:.2f}")
+
     mcmc_kwgs = dict(
         y_obs=data,
         starccato_vae=starccato_vae,
@@ -77,6 +83,19 @@ def sample(
         starccato_vae,
         fname=os.path.join(outdir, "ci_plot.png"),
     )
+
+    posterior_coverage = _compute_posterior_coverage(
+        data, inf_object, 200, starccato_vae
+    )
+    print(f"Posterior coverage: {posterior_coverage:.2f}")
+
+    inf_object.sample_stats[
+        "reconstruction_coverage"
+    ] = reconstruction_coverage
+    inf_object.sample_stats["posterior_coverage"] = posterior_coverage
+
+    # save the dataset as well
+    inf_object.sample_stats["data"] = np.array(data)
 
     inf_object.to_netcdf(os.path.join(outdir, "inference.nc"))
 
@@ -150,3 +169,20 @@ def _add_stepping_stone_lnz(
     inf_object.sample_stats["ss_lnz"] = log_z
     inf_object.sample_stats["ss_lnz_uncertainty"] = log_z_uncertainty
     inf_object.sample_stats["ss_runtime"] = runtime
+
+
+def _compute_posterior_coverage(
+    data: jnp.ndarray,
+    inf_object: az.InferenceData,
+    num_samples: int,
+    starccato_vae: StarccatoVAE,
+    ci: float = 0.9,
+) -> float:
+    """Compute the posterior coverage."""
+    zpost = inf_object.posterior["z"].stack(sample=("chain", "draw")).values.T
+    # only keep a subset of the samples
+    zpost = zpost[:num_samples]
+    recon_data = starccato_vae.generate(z=zpost)
+    qtls = pointwise_ci(recon_data, ci=ci)
+    coverage = coverage_probability(quantiles=qtls, true_signal=data)
+    return coverage
