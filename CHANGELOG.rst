@@ -5,16 +5,41 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.5:
+
+v0.0.5 (2025-02-21)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`e4d4690`_)
+
+.. _e4d4690: https://github.com/starccato/starccato_sampler/commit/e4d46905d3602d99d1289d8274a5ad0e627f3bef
+
+
 .. _changelog-v0.0.4:
 
 v0.0.4 (2025-02-19)
 ===================
+
+Bug Fixes
+---------
+
+* fix: add more data to sampler output (`b6954b2`_)
+
+Chores
+------
+
+* chore(release): 0.0.4 (`8730a23`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`06b6ccc`_)
 
+.. _b6954b2: https://github.com/starccato/starccato_sampler/commit/b6954b20d0472540624ea91636525ed114da2076
+.. _8730a23: https://github.com/starccato/starccato_sampler/commit/8730a23df6b8eeebd29a34b7f5edd4e4b80f4cf4
 .. _06b6ccc: https://github.com/starccato/starccato_sampler/commit/06b6cccc7b8f5f54b93f559e1f6a276c815c0de4
 
 
