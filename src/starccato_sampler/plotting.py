@@ -14,8 +14,9 @@ def sampler_diagnostic_plots(inf_object: az.InferenceData, outdir: str):
     # Plot the trace plot
     axes = az.plot_trace(inf_object, var_names=["z"])
     if "true_latent" in inf_object.sample_stats:
-        true_z = inf_object.sample_stats["true_latent"].to_numpy().ravel()[0]
-        if true_z is not None:
+        true_z = inf_object.sample_stats["true_latent"].to_numpy().ravel()
+
+        if len(true_z) > 2:
             colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
             for i, _z in enumerate(true_z):
                 axes[0, 0].axvline(
