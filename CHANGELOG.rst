@@ -5,16 +5,41 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.6:
+
+v0.0.6 (2025-02-26)
+===================
+
+Bug Fixes
+---------
+
+* fix: adjust CI plotting (`af9876e`_)
+
+Unknown
+-------
+
+* plotting fixes (`be3f8a5`_)
+
+.. _af9876e: https://github.com/starccato/starccato_sampler/commit/af9876e6a35cd613cbf25cbf91efdba2b25b3803
+.. _be3f8a5: https://github.com/starccato/starccato_sampler/commit/be3f8a5fe612afac93e56de9974234284469b905
+
+
 .. _changelog-v0.0.5:
 
 v0.0.5 (2025-02-21)
 ===================
+
+Chores
+------
+
+* chore(release): 0.0.5 (`1005fd1`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`e4d4690`_)
 
+.. _1005fd1: https://github.com/starccato/starccato_sampler/commit/1005fd1b9dee9a3b237bd27b40101517e3e2fbf8
 .. _e4d4690: https://github.com/starccato/starccato_sampler/commit/e4d46905d3602d99d1289d8274a5ad0e627f3bef
 
 
