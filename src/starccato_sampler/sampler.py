@@ -28,8 +28,10 @@ def sample(
     num_warmup=500,
     num_samples=1000,
     num_chains=1,
+    noise_sigma=1.0,
     stepping_stone_lnz: bool = False,
     verbose=True,
+    truth=None,
     **lnz_kwargs,
 ) -> MCMC:
     """
@@ -43,10 +45,18 @@ def sample(
 
     rng = random.PRNGKey(rng_int)
     starccato_vae = StarccatoVAE(model_path)
-    reconstruction_coverage = starccato_vae.reconstruction_coverage(
-        data, n=200, ci=0.9
-    )
-    print(f"Reconstruction coverage: {reconstruction_coverage:.2f}")
+
+    # unpack the truth
+    true_latent = None
+    if truth is not None:
+        if isinstance(truth, dict):
+            true_latent = truth["latent"]
+            truth = truth["signal"]
+
+        reconstruction_coverage = starccato_vae.reconstruction_coverage(
+            truth, n=200, ci=0.9
+        )
+        print(f"Reconstruction coverage: {reconstruction_coverage:.2f}")
 
     mcmc_kwgs = dict(
         y_obs=data,
@@ -54,6 +64,7 @@ def sample(
         num_samples=num_samples,
         num_warmup=num_warmup,
         rng=rng,
+        noise_sigma=noise_sigma,
     )
 
     t0 = process_time()
@@ -62,10 +73,14 @@ def sample(
     )
     inf_object = az.from_numpyro(mcmc)
     t1 = process_time()
+
+    # save some data
     inf_object.sample_stats["sampling_runtime"] = t1 - t0
+    inf_object.sample_stats["data"] = np.array(data)
+    inf_object.sample_stats["true_signal"] = truth
+    inf_object.sample_stats["true_latent"] = true_latent
 
     _add_gaussian_approx_lnz(inf_object, **lnz_kwargs)
-
     if stepping_stone_lnz:
         _add_stepping_stone_lnz(mcmc_kwgs, outdir, inf_object, **lnz_kwargs)
 
@@ -74,28 +89,26 @@ def sample(
     if verbose:
         print(az.summary(inf_object, var_names=["z"]))
         sampler_diagnostic_plots(inf_object, outdir)
-    z_samples = inf_object.posterior["z"].values.reshape(
-        -1, starccato_vae.latent_dim
-    )
+
     plot_ci(
         data,
-        z_samples,
-        starccato_vae,
+        z_posterior=inf_object.posterior["z"].values.reshape(
+            -1, starccato_vae.latent_dim
+        ),
+        starccato_vae=starccato_vae,
+        y_true=truth,
         fname=os.path.join(outdir, "ci_plot.png"),
     )
 
-    posterior_coverage = _compute_posterior_coverage(
-        data, inf_object, 200, starccato_vae
-    )
-    print(f"Posterior coverage: {posterior_coverage:.2f}")
-
-    inf_object.sample_stats[
-        "reconstruction_coverage"
-    ] = reconstruction_coverage
-    inf_object.sample_stats["posterior_coverage"] = posterior_coverage
-
-    # save the dataset as well
-    inf_object.sample_stats["data"] = np.array(data)
+    if truth is not None:
+        posterior_coverage = _compute_posterior_coverage(
+            truth, inf_object, 200, starccato_vae
+        )
+        print(f"Posterior coverage: {posterior_coverage:.2f}")
+        inf_object.sample_stats[
+            "reconstruction_coverage"
+        ] = reconstruction_coverage
+        inf_object.sample_stats["posterior_coverage"] = posterior_coverage
 
     inf_object.to_netcdf(os.path.join(outdir, "inference.nc"))
 

@@ -12,6 +12,7 @@ def _bayesian_model(
     starccato_vae: StarccatoVAE,
     rng: PRNGKey,
     beta: float,
+    noise_sigma: float = 1.0,
 ):
     """
     Bayesian model with tempering.
@@ -32,7 +33,7 @@ def _bayesian_model(
     # sigma = numpyro.sample("sigma", dist.HalfNormal(1))  # Noise level
 
     # Compute the untempered log–likelihood (Assuming Gaussian noise)
-    lnl = dist.Normal(y_model, 1).log_prob(y_obs).sum()
+    lnl = dist.Normal(y_model, noise_sigma).log_prob(y_obs).sum()
 
     # Temper the likelihood (the power likelihood)
     numpyro.factor("likelihood", beta * lnl)
@@ -50,6 +51,7 @@ def _run_mcmc(
     rng: PRNGKey,
     beta: float = 1.0,
     progress_bar: bool = False,
+    noise_sigma: float = 1.0,
 ) -> MCMC:
     """
     Run MCMC sampling.
@@ -64,7 +66,9 @@ def _run_mcmc(
       beta        : tempering parameter; beta=1 corresponds to full posterior.
     """
     nuts_kernel = NUTS(
-        lambda y_obs: _bayesian_model(y_obs, starccato_vae, rng, beta=beta)
+        lambda y_obs: _bayesian_model(
+            y_obs, starccato_vae, rng, beta=beta, noise_sigma=noise_sigma
+        )
     )
     mcmc = MCMC(
         nuts_kernel,
