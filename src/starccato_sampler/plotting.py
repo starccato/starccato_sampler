@@ -44,10 +44,10 @@ def plot_ci(
     ]
     y_preds = starccato_vae.generate(z=z_samples)
     ypred_qtls = pointwise_ci(y_preds, ci=0.9)
-    ypred_cov = coverage_probability(ypred_qtls, y_true)
     yrecn_qtls, yrecn_cov = None, None
 
     if y_true is not None:
+        ypred_cov = coverage_probability(ypred_qtls, y_true)
         y_recon = starccato_vae.reconstruct(y_true, n_reps=nsamps)
         yrecn_qtls = pointwise_ci(y_recon, ci=0.9)
         yrecn_cov = coverage_probability(yrecn_qtls, y_true)
