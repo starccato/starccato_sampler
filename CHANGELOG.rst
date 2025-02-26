@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.7:
+
+v0.0.7 (2025-02-26)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`2220781`_)
+
+.. _2220781: https://github.com/starccato/starccato_sampler/commit/2220781cc01b1ed273760fdb21b96f6ee5a5b1e4
+
+
 .. _changelog-v0.0.6:
 
 v0.0.6 (2025-02-26)
@@ -13,14 +26,23 @@ v0.0.6 (2025-02-26)
 Bug Fixes
 ---------
 
+* fix: hack for plotting z trues (`cea0b42`_)
+
 * fix: adjust CI plotting (`af9876e`_)
+
+Chores
+------
+
+* chore(release): 0.0.6 (`5d34ea5`_)
 
 Unknown
 -------
 
 * plotting fixes (`be3f8a5`_)
 
+.. _cea0b42: https://github.com/starccato/starccato_sampler/commit/cea0b428bc66e0977b0e69c33897bc8630e84107
 .. _af9876e: https://github.com/starccato/starccato_sampler/commit/af9876e6a35cd613cbf25cbf91efdba2b25b3803
+.. _5d34ea5: https://github.com/starccato/starccato_sampler/commit/5d34ea5f9b0748d40afea5ff661beb321055f25f
 .. _be3f8a5: https://github.com/starccato/starccato_sampler/commit/be3f8a5fe612afac93e56de9974234284469b905
 
 
