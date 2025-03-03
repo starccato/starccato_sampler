@@ -1,16 +1,31 @@
+import jax
+import pytest
+from starccato_jax import StarccatoVAE
 from starccato_jax.data import load_training_data
 
 from starccato_sampler.sampler import sample
 
+RNG = jax.random.PRNGKey(0)
 
-def test_sampler(outdir):
-    _, val_data = load_training_data(train_fraction=0.8)
+
+@pytest.fixture
+def injection():
+    vae = StarccatoVAE()
+    # true_z = jax.random.normal(RNG, (1, vae.latent_dim))
+    true_z = jax.numpy.zeros((1, vae.latent_dim))
+    true_signal = vae.generate(z=true_z)[0]
+    return true_signal, true_z.ravel()
+
+
+def test_sampler(injection, outdir):
+    true_signal, true_z = injection
     sample(
-        val_data[0],
+        true_signal,
         outdir=outdir,
-        num_warmup=500,
-        num_samples=1000,
+        num_warmup=50,
+        num_samples=100,
         num_chains=1,
         verbose=True,
-        stepping_stone_lnz=True,
+        stepping_stone_lnz=False,
+        truth=dict(signal=true_signal, latent=true_z),
     )

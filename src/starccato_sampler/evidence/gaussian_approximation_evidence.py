@@ -23,15 +23,15 @@ Marginal Likelihood (Evidence):
 
 Using the Laplace approximation, where we assume that the posterior
 is approximately Gaussian around its mode, we
-evaluate at θ = μ, the posterior mean.
+evaluate at θ = θr, the posterior mean.
 
 
 1. Prior at θ = θr:
-     p(μ) = ∏[i=1 to d] (1/√(2π) * exp( - θrᵢ² / 2 ))
+     p(θr) = ∏[i=1 to d] (1/√(2π) * exp( - θrᵢ² / 2 ))
           = (2π)^(-d/2) * exp( - (1/2) * Σ[i=1 to d] θrᵢ² )
 
 2. Posterior at θ = θr:
-     p(μ | D) = ∏[i=1 to d] (1 / (√(2π) * σᵢ))
+     p(θr | D) = ∏[i=1 to d] (1 / (√(2π) * σᵢ))
               = (2π)^(-d/2) * ∏[i=1 to d] (1/σᵢ)
 
 3. Combining to Get p(D):
