@@ -5,16 +5,41 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.8:
+
+v0.0.8 (2025-03-03)
+===================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`5e30409`_)
+
+.. _5e30409: https://github.com/starccato/starccato_sampler/commit/5e30409ab826a70bd314341f869c98fc9332625b
+
+
 .. _changelog-v0.0.7:
 
 v0.0.7 (2025-02-26)
 ===================
+
+Bug Fixes
+---------
+
+* fix: refactor code to post-processig (`f61bac5`_)
+
+Chores
+------
+
+* chore(release): 0.0.7 (`a64d74c`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`2220781`_)
 
+.. _f61bac5: https://github.com/starccato/starccato_sampler/commit/f61bac506c1b85de01395c44d2c9199644c6ee47
+.. _a64d74c: https://github.com/starccato/starccato_sampler/commit/a64d74c6a18c748ef39d115969beb8ee9beaf031
 .. _2220781: https://github.com/starccato/starccato_sampler/commit/2220781cc01b1ed273760fdb21b96f6ee5a5b1e4
 
 
