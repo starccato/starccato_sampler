@@ -27,7 +27,6 @@ def _post_process(
     vae,
     mcmc_kwgs,
     outdir,
-    verbose,
     stepping_stone_lnz,
     **lnz_kwargs,
 ):

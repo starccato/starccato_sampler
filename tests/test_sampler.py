@@ -1,7 +1,8 @@
+import os
+
 import jax
 import pytest
 from starccato_jax import StarccatoVAE
-from starccato_jax.data import load_training_data
 
 from starccato_sampler.sampler import sample
 
@@ -29,3 +30,7 @@ def test_sampler(injection, outdir):
         stepping_stone_lnz=False,
         truth=dict(signal=true_signal, latent=true_z),
     )
+    assert os.path.exists(outdir)
+    assert os.path.exists(os.path.join(outdir, "inference.nc"))
+    assert os.path.exists(os.path.join(outdir, "ci_plot.png"))
+    assert os.path.exists(os.path.join(outdir, "1d_marginals.png"))

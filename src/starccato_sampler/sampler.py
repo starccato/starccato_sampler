@@ -58,7 +58,6 @@ def sample(
         starccato_vae,
         mcmc_kwgs,
         outdir,
-        verbose,
         stepping_stone_lnz,
         **lnz_kwargs,
     )
