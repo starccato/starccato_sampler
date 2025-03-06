@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.10:
+
+v0.0.10 (2025-03-06)
+====================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`17f669e`_)
+
+.. _17f669e: https://github.com/starccato/starccato_sampler/commit/17f669ed20f7fa70fee613db89ea87e74c0ad953
+
+
 .. _changelog-v0.0.9:
 
 v0.0.9 (2025-03-06)
@@ -13,14 +26,23 @@ v0.0.9 (2025-03-06)
 Bug Fixes
 ---------
 
+* fix: improve PPplot (`ab7e0d3`_)
+
 * fix: add pp test (`2b85369`_)
+
+Chores
+------
+
+* chore(release): 0.0.9 (`44d9548`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`d1eeef7`_)
 
+.. _ab7e0d3: https://github.com/starccato/starccato_sampler/commit/ab7e0d3c2e06c052978d12a5467d97e07b1b47a2
 .. _2b85369: https://github.com/starccato/starccato_sampler/commit/2b853699650ed26584929069f96df79da89e9180
+.. _44d9548: https://github.com/starccato/starccato_sampler/commit/44d954859ca0dbf31e2e58fcbb42c473495d28d1
 .. _d1eeef7: https://github.com/starccato/starccato_sampler/commit/d1eeef7cd536932adaf0c9ba78056598e27ff04f
 
 
