@@ -5,16 +5,44 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.9:
+
+v0.0.9 (2025-03-06)
+===================
+
+Bug Fixes
+---------
+
+* fix: add pp test (`2b85369`_)
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`d1eeef7`_)
+
+.. _2b85369: https://github.com/starccato/starccato_sampler/commit/2b853699650ed26584929069f96df79da89e9180
+.. _d1eeef7: https://github.com/starccato/starccato_sampler/commit/d1eeef7cd536932adaf0c9ba78056598e27ff04f
+
+
 .. _changelog-v0.0.8:
 
 v0.0.8 (2025-03-03)
 ===================
 
+Chores
+------
+
+* chore(release): 0.0.8 (`3d2c163`_)
+
 Unknown
 -------
 
+* fix:remove unnused var (`a7c56e3`_)
+
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`5e30409`_)
 
+.. _3d2c163: https://github.com/starccato/starccato_sampler/commit/3d2c1633446f44ec31f7ffb4e56d43938ff5a6d3
+.. _a7c56e3: https://github.com/starccato/starccato_sampler/commit/a7c56e332b153f0bf7c2b208e361e227ff6e81fd
 .. _5e30409: https://github.com/starccato/starccato_sampler/commit/5e30409ab826a70bd314341f869c98fc9332625b
 
 
