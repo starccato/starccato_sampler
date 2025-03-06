@@ -109,7 +109,7 @@ def _make_pp_plot(
         pvalues.append(pvalue)
         print(f"{i}: {pvalue}")
         ax.plot(
-            x_values, pp, **kwargs, color=color, alpha=0.6, lw=0.3, zorder=110
+            x_values, pp, **kwargs, color=color, alpha=0.3, lw=0.3, zorder=110
         )
 
     combined_pvalue = scipy.stats.combine_pvalues(pvalues)[1]
