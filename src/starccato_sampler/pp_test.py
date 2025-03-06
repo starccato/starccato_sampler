@@ -55,7 +55,7 @@ def _make_pp_plot(
     filename="pp.png",
     confidence_interval=[0.68, 0.95, 0.997],
     title=True,
-    confidence_interval_alpha=0.1,
+    color="tab:orange",
     **kwargs,
 ):
     """
@@ -88,19 +88,19 @@ def _make_pp_plot(
 
     fig, ax = plt.subplots(figsize=(3.5, 3.5))
 
+    grays = plt.cm.Greys(np.linspace(0.2, 0.5, len(confidence_interval)))
+
     # Confidence interval shading
-    for ci in confidence_interval:
+    for i, ci in enumerate(confidence_interval[::-1]):
         edge = (1 - ci) / 2
         lower = scipy.stats.binom.ppf(edge, N, x_values) / N
         upper = scipy.stats.binom.ppf(1 - edge, N, x_values) / N
         ax.fill_between(
-            x_values,
-            lower,
-            upper,
-            alpha=confidence_interval_alpha,
-            color="k",
-            lw=0,
+            x_values, lower, upper, color=grays[i], lw=0, zorder=10
         )
+        # draw line at theses values
+        ax.plot(x_values, lower, color=grays[i], lw=1, zorder=10)
+        ax.plot(x_values, upper, color=grays[i], lw=1, zorder=10)
 
     pvalues = []
     for i in range(len(credible_levels)):
@@ -108,7 +108,9 @@ def _make_pp_plot(
         pvalue = scipy.stats.kstest(credible_levels[i], "uniform").pvalue
         pvalues.append(pvalue)
         print(f"{i}: {pvalue}")
-        ax.plot(x_values, pp, **kwargs, color="k", alpha=0.2, lw=0.3)
+        ax.plot(
+            x_values, pp, **kwargs, color=color, alpha=0.6, lw=0.3, zorder=110
+        )
 
     combined_pvalue = scipy.stats.combine_pvalues(pvalues)[1]
     print(f"Combined p-value: {combined_pvalue}")
@@ -120,6 +122,18 @@ def _make_pp_plot(
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
 
+    ax.legend(
+        handles=[
+            plt.Line2D([0], [0], color=grays[0], lw=2, label="68%"),
+            plt.Line2D([0], [0], color=grays[1], lw=2, label="95%"),
+            plt.Line2D([0], [0], color=grays[2], lw=2, label="99.7%"),
+            plt.Line2D(
+                [0], [0], color=color, lw=2, label=r"$\rm{CDF}_z(\rm{C.I.})$"
+            ),
+        ],
+        loc="upper left",
+        frameon=False,
+    )
     fig.tight_layout()
     plt.savefig(filename, dpi=500)
 
