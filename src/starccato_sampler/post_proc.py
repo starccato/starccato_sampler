@@ -9,6 +9,7 @@ import numpy as np
 from numpyro.infer import MCMC, NUTS
 from starccato_jax import StarccatoVAE
 from starccato_jax.credible_intervals import coverage_probability, pointwise_ci
+from starccato_jax.starccato_model import StarccatoModel
 from tqdm.auto import tqdm
 
 from .core import _run_mcmc
@@ -50,15 +51,17 @@ def _post_process(
 
 
 def _add_quantiles(
-    inf_object: az.InferenceData, vae: StarccatoVAE, nsamps: int = 100
+    inf_object: az.InferenceData, model: StarccatoModel, nsamps: int = 100
 ):
     zpost = _get_zposterior(inf_object, nsamps)
-    posterior_predictive = vae.generate(z=zpost)
+    posterior_predictive = model.generate(z=zpost)
     qtls = pointwise_ci(posterior_predictive, ci=0.9)
     inf_object.sample_stats["quantiles"] = (("quantile", "samples"), qtls)
 
 
-def _save_plots(inf_object: az.InferenceData, outdir: str, vae):
+def _save_plots(
+    inf_object: az.InferenceData, outdir: str, model: StarccatoModel
+):
     data = inf_object.sample_stats["data"]
     truth = inf_object.sample_stats.get("true_signal", None)
 
@@ -70,7 +73,7 @@ def _save_plots(inf_object: az.InferenceData, outdir: str, vae):
     plot_ci(
         data,
         z_posterior=zpost,
-        starccato_vae=vae,
+        starccato_model=model,
         y_true=truth,
         fname=os.path.join(outdir, "ci_plot.png"),
     )
@@ -84,7 +87,7 @@ def _add_truth(inf_object: az.InferenceData, truth: jnp.ndarray):
 
     assert len(truth) == len(
         inf_object.sample_stats["data"]
-    ), "Truth and data must have the same length."
+    ), f"Truth {truth.shape} and data {inf_object.sample_stats['data'].shape} must have the same length."
     assert (
         truth.dtype == inf_object.sample_stats["data"].dtype
     ), "Truth and data must have the same dtype."
@@ -96,6 +99,10 @@ def _add_truth(inf_object: az.InferenceData, truth: jnp.ndarray):
 
 def _add_coverage(inf_object: az.InferenceData, vae: StarccatoVAE):
     truth = jnp.array(inf_object.sample_stats["true_signal"])
+    # check if "reconstruction_coverage" is a method in vae
+    if not hasattr(vae, "reconstruction_coverage"):
+        print("Reconstruction coverage not available for this model.")
+        return
     reconstruction_coverage = vae.reconstruction_coverage(truth, n=200, ci=0.9)
     posterior_coverage = _compute_posterior_coverage(
         truth, inf_object, 200, vae
@@ -141,7 +148,7 @@ def _compute_posterior_coverage(
     data: jnp.ndarray,
     inf_object: az.InferenceData,
     num_samples: int,
-    starccato_vae: StarccatoVAE,
+    starccato_vae: StarccatoModel,
     ci: float = 0.9,
 ) -> float:
     """Compute the posterior coverage."""

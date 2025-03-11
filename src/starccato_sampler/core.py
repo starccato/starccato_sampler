@@ -4,12 +4,12 @@ import numpyro
 import numpyro.distributions as dist
 from jax.random import PRNGKey
 from numpyro.infer import MCMC, NUTS
-from starccato_jax import StarccatoVAE
+from starccato_jax.starccato_model import StarccatoModel
 
 
 def _bayesian_model(
     y_obs: jnp.ndarray,
-    starccato_vae: StarccatoVAE,
+    starccato_model: StarccatoModel,
     rng: PRNGKey,
     beta: float,
     noise_sigma: float = 1.0,
@@ -25,10 +25,10 @@ def _bayesian_model(
 
     # Define priors for the latent variables
     theta = numpyro.sample(
-        "z", dist.Normal(0, 1).expand([starccato_vae.latent_dim])
+        "z", dist.Normal(0, 1).expand([starccato_model.latent_dim])
     )
     # Generate the signal
-    y_model = starccato_vae.generate(z=theta, rng=rng)
+    y_model = starccato_model.generate(z=theta, rng=rng)
 
     # sigma = numpyro.sample("sigma", dist.HalfNormal(1))  # Noise level
 
@@ -44,7 +44,7 @@ def _bayesian_model(
 
 def _run_mcmc(
     y_obs: jnp.ndarray,
-    starccato_vae: StarccatoVAE,
+    starccato_model: StarccatoModel,
     num_samples: int,
     num_warmup: int,
     num_chains: int,
@@ -67,7 +67,7 @@ def _run_mcmc(
     """
     nuts_kernel = NUTS(
         lambda y_obs: _bayesian_model(
-            y_obs, starccato_vae, rng, beta=beta, noise_sigma=noise_sigma
+            y_obs, starccato_model, rng, beta=beta, noise_sigma=noise_sigma
         )
     )
     mcmc = MCMC(

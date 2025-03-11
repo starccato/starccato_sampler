@@ -9,6 +9,7 @@ import numpy as np
 from numpyro.infer import MCMC, NUTS
 from starccato_jax import StarccatoVAE
 from starccato_jax.credible_intervals import coverage_probability, pointwise_ci
+from starccato_jax.starccato_model import StarccatoModel
 from tqdm.auto import tqdm
 
 from .core import _run_mcmc
@@ -17,7 +18,7 @@ from .post_proc import _post_process
 
 def sample(
     data: jnp.ndarray,
-    model_path: str = None,
+    starccato_model: StarccatoModel = None,
     rng_int: int = 0,
     outdir="out_mcmc",
     num_warmup=500,
@@ -33,11 +34,13 @@ def sample(
     Sample latent variables given the data.
     """
     rng = random.PRNGKey(rng_int)
-    starccato_vae = StarccatoVAE(model_path)
+
+    if starccato_model is None:
+        starccato_model = StarccatoVAE()
 
     mcmc_kwgs = dict(
         y_obs=data,
-        starccato_vae=starccato_vae,
+        starccato_model=starccato_model,
         num_samples=num_samples,
         num_warmup=num_warmup,
         rng=rng,
@@ -55,7 +58,7 @@ def sample(
         inf_object,
         data,
         truth,
-        starccato_vae,
+        starccato_model,
         mcmc_kwgs,
         outdir,
         stepping_stone_lnz,
