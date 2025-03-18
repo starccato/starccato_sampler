@@ -17,7 +17,7 @@ from .evidence import (
     compute_gaussian_approx_evidence,
     compute_stepping_stone_evidence,
 )
-from .plotting import plot_ci, sampler_diagnostic_plots
+from .plotting import plot_ci, plot_sampler_diagnostics
 from .utils import beta_spaced_samples
 
 
@@ -57,6 +57,11 @@ def _add_quantiles(
     posterior_predictive = model.generate(z=zpost)
     qtls = pointwise_ci(posterior_predictive, ci=0.9)
     inf_object.sample_stats["quantiles"] = (("quantile", "samples"), qtls)
+    # add MSE of the quantiles to the inference object if true signal presetn
+    if "true_signal" in inf_object.sample_stats:
+        truth = jnp.array(inf_object.sample_stats["true_signal"])
+        mse = jnp.mean((qtls[1] - truth) ** 2, axis=1)
+        inf_object.sample_stats["mse"] = mse
 
 
 def _save_plots(
@@ -69,7 +74,7 @@ def _save_plots(
         truth = jnp.array(truth)
 
     zpost = _get_zposterior(inf_object)
-    sampler_diagnostic_plots(inf_object, outdir)
+    plot_sampler_diagnostics(inf_object, outdir)
     plot_ci(
         data,
         z_posterior=zpost,
