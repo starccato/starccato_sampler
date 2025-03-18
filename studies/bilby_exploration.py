@@ -4,6 +4,7 @@ import bilby
 import numpy as np
 from bilby.core.prior import DeltaFunction, Normal, PriorDict, Uniform
 from jax.random import PRNGKey
+
 from starccato_jax import StarccatoVAE
 from starccato_jax.data import load_training_data
 
@@ -27,7 +28,7 @@ duration = n_timestamps / sampling_frequency
 time = np.linspace(0, duration, n_timestamps)
 t0 = time[53]  # This is the time of the core-bounce
 
-LUMIN_DIST = 10  # kpc
+LUMIN_DIST = 5  # kpc
 GEOCENT_TIME = 1126259642.413
 
 # Specify the output directory and the name of the simulation.
@@ -35,7 +36,7 @@ outdir = "outdir"
 label = "supernova"
 bilby.core.utils.setup_logger(outdir=outdir, label=label)
 
-np.random.seed(170801)
+np.random.seed(42)
 
 
 def get_latent_vector_prior():
@@ -48,7 +49,7 @@ def get_latent_vector_prior():
 prior = PriorDict(
     dict(
         **get_latent_vector_prior(),
-        luminosity_distance=Uniform(2, 20, "luminosity_distance", unit="kpc"),
+        luminosity_distance=Uniform(2, 40, "luminosity_distance", unit="kpc"),
         ra=Uniform(0, 2 * np.pi, "ra", boundary="periodic"),
         dec=Uniform(-np.pi / 2, np.pi / 2, "dec", boundary="periodic"),
         geocent_time=Uniform(
@@ -72,6 +73,7 @@ def supernova(freq_array, luminosity_distance, z, **kwargs):
     """
     A source model that reads a simulation from a text file.
 
+
     This was originally intended for use with supernova simulations, but can
     be applied to any source class.
 
@@ -79,6 +81,7 @@ def supernova(freq_array, luminosity_distance, z, **kwargs):
     ----------
     frequency_array: array-like
         Unused (but required by the source model interface)
+
 
     Returns
     -------
@@ -112,8 +115,28 @@ def parameter_conversion(parameters):
     return new_params, parameters
 
 
+class WaveformGenerator(bilby.gw.waveform_generator.WaveformGenerator):
+
+    def _calculate_strain(self, model, model_data_points, transformation_function, transformed_model,
+                          transformed_model_data_points, parameters):
+        if parameters is not None:
+            self.parameters = parameters
+        if model is not None:
+            model_strain = self._strain_from_model(model_data_points, model)
+        elif transformed_model is not None:
+            model_strain = self._strain_from_transformed_model(transformed_model_data_points, transformed_model,
+                                                               transformation_function)
+        else:
+            raise RuntimeError("No source model given")
+        self._cache['waveform'] = model_strain
+        self._cache['parameters'] = self.parameters.copy()
+        self._cache['model'] = model
+        self._cache['transformed_model'] = transformed_model
+        return model_strain
+
+
 # Create the waveform_generator using a supernova source function
-waveform_generator = bilby.gw.waveform_generator.WaveformGenerator(
+waveform_generator = WaveformGenerator(
     duration=duration,
     sampling_frequency=sampling_frequency,
     time_domain_source_model=supernova,
@@ -151,10 +174,12 @@ SIGNAL_COL = "tab:orange"
 PSD_COL = "black"
 
 
-def plot_freq_domain(ifo: bilby.gw.detector.Interferometer, freq_signal):
-    fig, ax = plt.subplots()
+def plot_freq_domain(ifo: bilby.gw.detector.Interferometer, freq_signal, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots()
+    fig = ax.get_figure()
     df = (
-        ifo.strain_data.frequency_array[1] - ifo.strain_data.frequency_array[0]
+            ifo.strain_data.frequency_array[1] - ifo.strain_data.frequency_array[0]
     )
     asd = gwutils.asd_from_freq_series(
         freq_data=ifo.strain_data.frequency_domain_strain, df=df
@@ -187,11 +212,12 @@ def plot_freq_domain(ifo: bilby.gw.detector.Interferometer, freq_signal):
     ax.grid(True)
     ax.set_ylabel(r"Strain [strain/$\sqrt{\rm Hz}$]")
     ax.set_xlabel(r"Frequency [Hz]")
-    ax.legend(loc="best")
 
 
-def plot_time_domain(ifo, time_signal):
-    fig, ax = plt.subplots()
+def plot_time_domain(ifo, time_signal, ax=None):
+    if ax is None:
+        fig, ax = plt.subplots()
+    fig = ax.get_figure()
     strain = ifo.strain_data.time_domain_strain
     t0 = ifo.strain_data.start_time
     x = ifo.strain_data.time_array - t0
@@ -209,29 +235,67 @@ def plot_time_domain(ifo, time_signal):
     )
     ax.set_xlabel(xlabel)
     ax.set_ylabel("Strain")
-    ax.legend()
     fig.tight_layout()
     return ax
 
 
-plot_freq_domain(ifos[0], injection_strain["plus"])
-plot_time_domain(ifos[0], injection_strain_time["plus"])
 
-signals = []
+
+signals_td = []
+signals_fd = []
+df = ifos[0].strain_data.frequency_array[1] - ifos[0].strain_data.frequency_array[0]
+fmask = ifos[0].strain_data.frequency_mask
 for i in range(100):
     sample = prior.sample()
-    s = waveform_generator.time_domain_strain(sample)["plus"]
-    signals.append(s)
+    td = waveform_generator.time_domain_strain(sample)["plus"]
+    fd = waveform_generator.frequency_domain_strain(sample)["plus"]
+    asd = gwutils.asd_from_freq_series(freq_data=fd, df=df)[fmask]
+    signals_td.append(td)
+    signals_fd.append(asd)
 
-signal_ci = np.quantile(np.array(signals), [0.05, 0.5, 0.95], axis=0)
-
+td_ci = np.quantile(np.array(signals_td), [0.05, 0.5, 0.95], axis=0)
+fd_ci = np.quantile(np.array(signals_fd), [0.05, 0.5, 0.95], axis=0)
 t0 = ifos[0].strain_data.start_time
-x = ifos[0].strain_data.time_array - t0
-ax = plot_time_domain(ifos[0], injection_strain_time["plus"])
-ax.fill_between(
-    x, signal_ci[0], signal_ci[2], alpha=0.25, color="tab:blue", label="Prior"
+t = ifos[0].strain_data.time_array - t0
+f = ifos[0].strain_data.frequency_array[ifos[0].strain_data.frequency_mask]
+# roll
+# td_ci = np.roll(td_ci, 55)
+
+
+fig, ax = plt.subplots(1, 2, figsize=(9, 4))
+
+plot_time_domain(ifos[0], injection_strain_time["plus"], ax=ax[0])
+ax[0].fill_between(
+    t, td_ci[0], td_ci[2], alpha=0.25, color="tab:red", label="Prior"
 )
-ax.legend()
+
+plot_freq_domain(ifos[0], injection_strain["plus"], ax=ax[1])
+ax[1].fill_between(
+    f,
+    fd_ci[0],
+    fd_ci[2],
+    alpha=0.25,
+    color="tab:red",
+    label="Prior",
+)
+ax[0].set_xlim(min(t), max(t))
+ax[1].set_xlim(200, 2048)
+ax[1].legend(loc='lower left', frameon=False)
+ax[1].grid(False)
+plt.tight_layout()
+plt.savefig("injection.png")
+
+prior = PriorDict(
+    dict(
+        **get_latent_vector_prior(),
+        luminosity_distance=LUMIN_DIST,
+        ra=0,
+        dec=0,
+        geocent_time=GEOCENT_TIME,
+        psi=0.0,
+    ),
+)
+
 
 # Run sampler.
 likelihood = bilby.gw.likelihood.GravitationalWaveTransient(
@@ -245,4 +309,5 @@ result = bilby.run_sampler(
     outdir=outdir,
     label=label,
     clean=True,
+    iterations=1000,
 )

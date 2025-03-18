@@ -7,6 +7,22 @@ from numpyro.infer import MCMC, NUTS
 from starccato_jax.starccato_model import StarccatoModel
 
 
+def log_likelihood(
+        y_obs,
+        y_model,
+        noise_sigma=1.0,
+):
+    """
+    Compute the log-likelihood of the data given the model.
+
+    Parameters:
+      y_obs: observed data.
+      y_model: model data.
+    """
+    return -0.5 * jnp.sum((y_obs - y_model) ** 2) / noise_sigma ** 2
+
+
+
 def _bayesian_model(
     y_obs: jnp.ndarray,
     starccato_model: StarccatoModel,
@@ -33,7 +49,7 @@ def _bayesian_model(
     # sigma = numpyro.sample("sigma", dist.HalfNormal(1))  # Noise level
 
     # Compute the untempered log–likelihood (Assuming Gaussian noise)
-    lnl = dist.Normal(y_model, noise_sigma).log_prob(y_obs).sum()
+    lnl = log_likelihood(y_obs, y_model, noise_sigma=noise_sigma)
 
     # Temper the likelihood (the power likelihood)
     numpyro.factor("likelihood", beta * lnl)

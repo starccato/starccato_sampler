@@ -27,7 +27,7 @@ def test_sampler(injection, outdir):
         num_samples=100,
         num_chains=1,
         verbose=True,
-        stepping_stone_lnz=False,
+        stepping_stone_lnz=True,
         truth=dict(signal=true_signal, latent=true_z),
     )
     assert os.path.exists(outdir)
