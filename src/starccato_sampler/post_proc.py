@@ -4,9 +4,7 @@ from typing import Dict
 
 import arviz as az
 import jax.numpy as jnp
-import jax.random as random
 import numpy as np
-from numpyro.infer import MCMC, NUTS
 from starccato_jax import StarccatoVAE
 from starccato_jax.credible_intervals import coverage_probability, pointwise_ci
 from starccato_jax.starccato_model import StarccatoModel
@@ -17,6 +15,7 @@ from .evidence import (
     compute_gaussian_approx_evidence,
     compute_stepping_stone_evidence,
 )
+from .evidence.gss_evidence import generate_reference_prior
 from .plotting import plot_ci, plot_sampler_diagnostics
 from .utils import beta_spaced_samples
 
@@ -28,7 +27,8 @@ def _post_process(
     vae,
     mcmc_kwgs,
     outdir,
-    stepping_stone_lnz,
+    stepping_stone_lnz=False,
+    gss_lnz=False,
     **lnz_kwargs,
 ):
     """Handles post-processing of the inference object."""
@@ -44,6 +44,8 @@ def _post_process(
     _add_gaussian_approx_lnz(inf_object, **lnz_kwargs)
     if stepping_stone_lnz:
         _add_stepping_stone_lnz(mcmc_kwgs, outdir, inf_object, **lnz_kwargs)
+    if gss_lnz:
+        _add_gss_lnz(mcmc_kwgs, outdir, inf_object, **lnz_kwargs)
 
     os.makedirs(outdir, exist_ok=True)
     _save_plots(inf_object, outdir, vae)
@@ -163,14 +165,13 @@ def _compute_posterior_coverage(
     return coverage_probability(quantiles=qtls, true_signal=data)
 
 
-def _add_stepping_stone_lnz(
+def _run_temperatures(
     mcmc_kwgs: Dict,
-    outdir: str,
-    inf_object: az.InferenceData,
+    ref_pri=None,
+    plot_fname: str = "stepping_stone.png",
     **lnz_kwargs: Dict,
-) -> None:
-    """Adds Stepping Stone LnZ to the inference object."""
-    num_temps = lnz_kwargs.get("num_temps", 16)
+):
+    num_temps = lnz_kwargs.get("num_temps", 32)
     tempering_betas = beta_spaced_samples(
         num_temps,
         0.3,
@@ -184,14 +185,31 @@ def _add_stepping_stone_lnz(
             beta=tempering_betas[i],
             num_chains=1,
             progress_bar=False,
+            reference_prior=ref_pri,
         )
         tempered_lnls[:, i] = temp_mcmc.get_samples()["untempered_loglike"]
 
     log_z, log_z_uncertainty = compute_stepping_stone_evidence(
-        tempered_lnls, tempering_betas, outdir, mcmc_kwgs["rng"]
+        tempered_lnls,
+        tempering_betas,
+        plot_fname,
+        mcmc_kwgs["rng"],
     )
     t1 = process_time()
     runtime = t1 - t0  # in seconds
+    return log_z, log_z_uncertainty, runtime
+
+
+def _add_stepping_stone_lnz(
+    mcmc_kwgs: Dict,
+    outdir: str,
+    inf_object: az.InferenceData,
+    **lnz_kwargs: Dict,
+) -> None:
+    """Adds Stepping Stone LnZ to the inference object."""
+    log_z, log_z_uncertainty, runtime = _run_temperatures(
+        mcmc_kwgs, plot_fname=f"{outdir}/stepping_stone.png", **lnz_kwargs
+    )
 
     print(
         f"SS Log Z: {log_z:.3e} +/- {log_z_uncertainty:.3e} [Runtime: {runtime:.3f} s]"
@@ -200,6 +218,28 @@ def _add_stepping_stone_lnz(
     inf_object.sample_stats["ss_lnz"] = log_z
     inf_object.sample_stats["ss_lnz_uncertainty"] = log_z_uncertainty
     inf_object.sample_stats["ss_runtime"] = runtime
+
+
+def _add_gss_lnz(
+    mcmc_kwgs: Dict,
+    outdir: str,
+    inf_object: az.InferenceData,
+    **lnz_kwargs: Dict,
+):
+    """Adds GSS LnZ to the inference object."""
+    z_post = _get_zposterior(inf_object)
+    ref_pri = generate_reference_prior(z_post)
+    log_z, log_z_uncertainty, runtime = _run_temperatures(
+        mcmc_kwgs, ref_pri, f"{outdir}/gss.png", **lnz_kwargs
+    )
+
+    print(
+        f"GSS Log Z: {log_z:.3e} +/- {log_z_uncertainty:.3e} [Runtime: {runtime:.3f} s]"
+    )
+    # add these to the inference object
+    inf_object.sample_stats["gss_lnz"] = log_z
+    inf_object.sample_stats["gss_lnz_uncertainty"] = log_z_uncertainty
+    inf_object.sample_stats["gss_runtime"] = runtime
 
 
 def _get_zposterior(inf_object, nsamps: int = 100):

@@ -5,16 +5,41 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.12:
+
+v0.0.12 (2025-03-11)
+====================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`e78a2bb`_)
+
+.. _e78a2bb: https://github.com/starccato/starccato_sampler/commit/e78a2bb939ea24ae7c3db891204f1c9daf0faacb
+
+
 .. _changelog-v0.0.11:
 
 v0.0.11 (2025-03-06)
 ====================
+
+Bug Fixes
+---------
+
+* fix: make more generic (from VAE-->Model (so we can use either VAE or PCA) (`2d27686`_)
+
+Chores
+------
+
+* chore(release): 0.0.11 (`abf8c94`_)
 
 Unknown
 -------
 
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`0c0ea63`_)
 
+.. _2d27686: https://github.com/starccato/starccato_sampler/commit/2d27686c26eee009e7b6704fe7ff955cd99a6489
+.. _abf8c94: https://github.com/starccato/starccato_sampler/commit/abf8c944aa6479f994f197acf4e51266b61d6a6a
 .. _0c0ea63: https://github.com/starccato/starccato_sampler/commit/0c0ea6306f1a253c2c8bc746bfd409eb5aa2e7fd
 
 

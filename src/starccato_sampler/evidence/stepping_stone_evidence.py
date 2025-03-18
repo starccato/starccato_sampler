@@ -7,11 +7,15 @@ import numpy as np
 from jax.random import PRNGKey
 from jax.scipy.special import logsumexp
 
+
 # from jax import numpy as jnp
 
 
 def compute_stepping_stone_evidence(
-    ln_likes: jnp.ndarray, betas: jnp.ndarray, outdir: str, rng: PRNGKey
+        ln_likes: jnp.ndarray,
+        betas: jnp.ndarray,
+        plot_fname: str,
+        rng: PRNGKey
 ) -> Tuple[float, float]:
     """
     Compute the evidence using the stepping stone approximation.
@@ -64,18 +68,20 @@ def compute_stepping_stone_evidence(
         print("Failed to estimate stepping stone uncertainty: ", e)
         ln_z_err = jnp.nan
 
-    _create_stepping_stone_plot(means=ln_ratio, outdir=outdir)
+    _create_stepping_stone_plot(means=ln_ratio, plot_fname=plot_fname)
 
     return ln_z, ln_z_err
 
 
 def _calculate_stepping_stone(
-    ln_likes: jnp.ndarray, betas: jnp.ndarray
+        ln_likes: jnp.ndarray, betas: jnp.ndarray
 ) -> Tuple[float, jnp.ndarray]:
     """
     log z = Sum_k^(K−1)  Log Sum_i^(n)  L(X|θ_i, β_k-1) ** (β_k - β_k-1) - log n (k-1)
     """
     n, k = ln_likes.shape
+
+    # low k --> prior, high k --> posterior
 
     d_betas = betas[1:] - betas[:-1]  # beta_k - beta_{k-1}
     lnls = ln_likes[:, :-1]  # only the k-1 LnLs chains (discard
@@ -83,7 +89,7 @@ def _calculate_stepping_stone(
     return jnp.sum(ln_ratio), ln_ratio
 
 
-def _create_stepping_stone_plot(means: jnp.ndarray, outdir: str):
+def _create_stepping_stone_plot(means: jnp.ndarray, plot_fname: str):
     n_steps = len(means)
 
     fig, axes = plt.subplots(nrows=2, figsize=(8, 10))
@@ -92,6 +98,10 @@ def _create_stepping_stone_plot(means: jnp.ndarray, outdir: str):
     ax.plot(np.arange(1, n_steps + 1), means)
     ax.set_xlabel("$k$")
     ax.set_ylabel("$r_{k}$")
+    # add label for k=0 prior, k=1 posterior
+    ax.text(0, means[0], "Prior", ha="right", va="bottom")
+    ax.text(1, means[1], "Posterior", ha="right", va="bottom")
+
 
     ax = axes[1]
     ax.plot(np.arange(1, n_steps + 1), np.cumsum(means[::1])[::1])
@@ -99,5 +109,5 @@ def _create_stepping_stone_plot(means: jnp.ndarray, outdir: str):
     ax.set_ylabel("Cumulative $\\ln Z$")
 
     plt.tight_layout()
-    fig.savefig(f"{outdir}/lnz_stepping_stone.png")
+    fig.savefig(plot_fname)
     plt.close()
