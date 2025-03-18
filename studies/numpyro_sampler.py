@@ -1,16 +1,16 @@
-from data_generator import generate_analysis_data, AnalysisData
-from jax import numpy as jnp
-from jaxtyping import Array, Float
-from starccato_jax import StarccatoVAE
+import arviz as az
+import jax
 import jax.numpy as jnp
 import jax.random as random
 import numpyro
 import numpyro.distributions as dist
 from jax.random import PRNGKey
+from jaxtyping import Array, Float
 from numpyro.infer import MCMC, NUTS
+
+from data_generator import generate_analysis_data, AnalysisData
+from starccato_jax import StarccatoVAE
 from starccato_jax.starccato_model import StarccatoModel
-import jax
-import arviz as az
 
 jax.config.update("jax_enable_x64", True)
 
@@ -18,12 +18,12 @@ jax.config.update("jax_enable_x64", True)
 # import numpy as jnp
 
 # @jax.jit
-def match_filter_snr(h_dec:Array, data:Array, psd:Array, df:Float) -> Float:
+def match_filter_snr(h_dec: Array, data: Array, psd: Array, df: Float) -> Float:
     return 4 * jnp.sum((jnp.conj(h_dec) * data) / psd * df).real
 
 
 # @jax.jit
-def optimal_snr(h_dec:Array, psd:Array, df:Float) -> Float:
+def optimal_snr(h_dec: Array, psd: Array, df: Float) -> Float:
     return 4 * jnp.sum(jnp.conj(h_dec) * h_dec / psd * df).real
 
 
@@ -52,12 +52,12 @@ def log_likelihood(
 
 
 def _bayesian_model(
-    y_obs: Array,
-    psd: Array,
-    starccato_model: StarccatoModel,
-    rng: PRNGKey,
-    fmask: Array,
-    df: Float,
+        y_obs: Array,
+        psd: Array,
+        starccato_model: StarccatoModel,
+        rng: PRNGKey,
+        fmask: Array,
+        df: Float,
 ):
     """
     Bayesian model with tempering.
@@ -97,13 +97,13 @@ def _bayesian_model(
 
 
 def run_mcmc(
-    analysis_data: AnalysisData,
-    starccato_model: StarccatoModel,
-    num_samples: int,
-    num_warmup: int,
-    num_chains: int,
-    rng: PRNGKey,
-    progress_bar: bool = False,
+        analysis_data: AnalysisData,
+        starccato_model: StarccatoModel,
+        num_samples: int,
+        num_warmup: int,
+        num_chains: int,
+        rng: PRNGKey,
+        progress_bar: bool = False,
 ) -> MCMC:
     """
     Run MCMC sampling.
@@ -137,23 +137,30 @@ def run_mcmc(
     mcmc.run(rng, y_obs=analysis_data.freqseries_data)
     return mcmc
 
+
 from starccato_sampler.post_proc import _post_process
 
+
 def main():
+    ntemps = [8, 16, 32, 64]
+
     analysis_data = generate_analysis_data()
     starccato_model = StarccatoVAE()
-    rng = random.PRNGKey(0)
 
-    sig = starccato_model.generate(n=1, rng=rng)[0]
-    hc = jnp.fft.rfft(sig)[analysis_data.fmask]
-    # match_filter_snr(hc, analysis_data.freqseries_data, analysis_data.psd, analysis_data.df)
+    for ntemp in ntemps:
 
+        rng = random.PRNGKey(0)
 
-    mcmc = run_mcmc(analysis_data, starccato_model, 1000, 2000, 2, rng, True)
-    mcmc.print_summary()
-    inf_object = az.from_numpyro(mcmc)
+        sig = starccato_model.generate(n=1, rng=rng)[0]
+        hc = jnp.fft.rfft(sig)[analysis_data.fmask]
+        # match_filter_snr(hc, analysis_data.freqseries_data, analysis_data.psd, analysis_data.df)
 
-    _post_process(inf_object, analysis_data.timeseries_data, analysis_data.true_timeseries, starccato_model, mcmc, "outdir", False)
+        mcmc = run_mcmc(analysis_data, starccato_model, 10000, 20000, 2, rng, True)
+        mcmc.print_summary()
+        inf_object = az.from_numpyro(mcmc)
+
+        _post_process(inf_object, analysis_data.timeseries_data, analysis_data.true_timeseries, starccato_model, mcmc,
+                      f"outdir_n{ntemp}", True, num_temps=ntemp)
 
 
 if __name__ == '__main__':

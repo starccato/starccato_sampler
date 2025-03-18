@@ -27,8 +27,8 @@ def _post_process(
         vae,
         mcmc_kwgs,
         outdir,
-        stepping_stone_lnz,
-        gss_lnz,
+        stepping_stone_lnz=False,
+        gss_lnz=False,
         **lnz_kwargs,
 ):
     """Handles post-processing of the inference object."""
