@@ -23,11 +23,12 @@ def test_sampler(injection, outdir):
     sample(
         true_signal,
         outdir=outdir,
-        num_warmup=50,
-        num_samples=100,
+        num_warmup=150,
+        num_samples=1000,
         num_chains=1,
         verbose=True,
         stepping_stone_lnz=True,
+        gss_lnz=True,
         truth=dict(signal=true_signal, latent=true_z),
     )
     assert os.path.exists(outdir)

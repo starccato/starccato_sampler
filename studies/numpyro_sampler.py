@@ -74,6 +74,7 @@ def _bayesian_model(
     )
     # Generate the signal
     y_model_t = starccato_model.generate(z=theta, rng=rng)
+    y_model_t = 1e-21 * y_model_t
     # FFT model
     y_model = jnp.fft.rfft(y_model_t)
 

@@ -12,6 +12,7 @@ from starccato_jax.credible_intervals import coverage_probability, pointwise_ci
 from starccato_jax.starccato_model import StarccatoModel
 from tqdm.auto import tqdm
 
+
 from .core import _run_mcmc
 from .post_proc import _post_process
 
@@ -26,6 +27,7 @@ def sample(
     num_chains=1,
     noise_sigma=1.0,
     stepping_stone_lnz: bool = False,
+    gss_lnz: bool = False,
     verbose=True,
     truth=None,
     **lnz_kwargs,
@@ -62,6 +64,7 @@ def sample(
         mcmc_kwgs,
         outdir,
         stepping_stone_lnz,
+        gss_lnz,
         **lnz_kwargs,
     )
     return mcmc

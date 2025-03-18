@@ -5,6 +5,17 @@ import numpyro.distributions as dist
 from jax.random import PRNGKey
 from numpyro.infer import MCMC, NUTS
 from starccato_jax.starccato_model import StarccatoModel
+from jaxtyping import Array
+
+def log_prior(theta):
+    """
+    Compute the log-prior of the latent variables.
+
+    Parameters:
+      theta: latent variables.
+    """
+    return dist.Normal(0, 1).log_prob(theta).sum()
+
 
 
 def log_likelihood(
@@ -29,6 +40,7 @@ def _bayesian_model(
     rng: PRNGKey,
     beta: float,
     noise_sigma: float = 1.0,
+    reference_prior: Array = None
 ):
     """
     Bayesian model with tempering.
@@ -39,9 +51,11 @@ def _bayesian_model(
       beta    : tempering parameter; beta=1 corresponds to full posterior.
     """
 
+    dims = starccato_model.latent_dim
+
     # Define priors for the latent variables
     theta = numpyro.sample(
-        "z", dist.Normal(0, 1).expand([starccato_model.latent_dim])
+        "z", dist.Normal(0, 1).expand([dims])
     )
     # Generate the signal
     y_model = starccato_model.generate(z=theta, rng=rng)
@@ -50,12 +64,17 @@ def _bayesian_model(
 
     # Compute the untempered log–likelihood (Assuming Gaussian noise)
     lnl = log_likelihood(y_obs, y_model, noise_sigma=noise_sigma)
+    # Save the untempered log–likelihood (for LnZ computation).
+    numpyro.deterministic("untempered_loglike", lnl)
+
+    if reference_prior is not None:
+        ln_ref_pri = jnp.sum(jnp.array([reference_prior[i].log_prob(theta[i]) for i in range(dims)]))
+        ln_pri = log_prior(theta)
+        lnl = lnl + ln_pri - ln_ref_pri
 
     # Temper the likelihood (the power likelihood)
     numpyro.factor("likelihood", beta * lnl)
 
-    # Save the untempered log–likelihood (for LnZ computation).
-    numpyro.deterministic("untempered_loglike", lnl)
 
 
 def _run_mcmc(
@@ -68,6 +87,7 @@ def _run_mcmc(
     beta: float = 1.0,
     progress_bar: bool = False,
     noise_sigma: float = 1.0,
+    reference_prior: Array = None
 ) -> MCMC:
     """
     Run MCMC sampling.
@@ -83,7 +103,7 @@ def _run_mcmc(
     """
     nuts_kernel = NUTS(
         lambda y_obs: _bayesian_model(
-            y_obs, starccato_model, rng, beta=beta, noise_sigma=noise_sigma
+            y_obs, starccato_model, rng, beta=beta, noise_sigma=noise_sigma, reference_prior=reference_prior
         )
     )
     mcmc = MCMC(
