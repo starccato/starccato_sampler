@@ -4,7 +4,6 @@ import bilby
 import numpy as np
 from bilby.core.prior import DeltaFunction, Normal, PriorDict, Uniform
 from jax.random import PRNGKey
-
 from starccato_jax import StarccatoVAE
 from starccato_jax.data import load_training_data
 
@@ -116,22 +115,31 @@ def parameter_conversion(parameters):
 
 
 class WaveformGenerator(bilby.gw.waveform_generator.WaveformGenerator):
-
-    def _calculate_strain(self, model, model_data_points, transformation_function, transformed_model,
-                          transformed_model_data_points, parameters):
+    def _calculate_strain(
+        self,
+        model,
+        model_data_points,
+        transformation_function,
+        transformed_model,
+        transformed_model_data_points,
+        parameters,
+    ):
         if parameters is not None:
             self.parameters = parameters
         if model is not None:
             model_strain = self._strain_from_model(model_data_points, model)
         elif transformed_model is not None:
-            model_strain = self._strain_from_transformed_model(transformed_model_data_points, transformed_model,
-                                                               transformation_function)
+            model_strain = self._strain_from_transformed_model(
+                transformed_model_data_points,
+                transformed_model,
+                transformation_function,
+            )
         else:
             raise RuntimeError("No source model given")
-        self._cache['waveform'] = model_strain
-        self._cache['parameters'] = self.parameters.copy()
-        self._cache['model'] = model
-        self._cache['transformed_model'] = transformed_model
+        self._cache["waveform"] = model_strain
+        self._cache["parameters"] = self.parameters.copy()
+        self._cache["model"] = model
+        self._cache["transformed_model"] = transformed_model
         return model_strain
 
 
@@ -174,12 +182,14 @@ SIGNAL_COL = "tab:orange"
 PSD_COL = "black"
 
 
-def plot_freq_domain(ifo: bilby.gw.detector.Interferometer, freq_signal, ax=None):
+def plot_freq_domain(
+    ifo: bilby.gw.detector.Interferometer, freq_signal, ax=None
+):
     if ax is None:
         fig, ax = plt.subplots()
     fig = ax.get_figure()
     df = (
-            ifo.strain_data.frequency_array[1] - ifo.strain_data.frequency_array[0]
+        ifo.strain_data.frequency_array[1] - ifo.strain_data.frequency_array[0]
     )
     asd = gwutils.asd_from_freq_series(
         freq_data=ifo.strain_data.frequency_domain_strain, df=df
@@ -239,11 +249,12 @@ def plot_time_domain(ifo, time_signal, ax=None):
     return ax
 
 
-
-
 signals_td = []
 signals_fd = []
-df = ifos[0].strain_data.frequency_array[1] - ifos[0].strain_data.frequency_array[0]
+df = (
+    ifos[0].strain_data.frequency_array[1]
+    - ifos[0].strain_data.frequency_array[0]
+)
 fmask = ifos[0].strain_data.frequency_mask
 for i in range(100):
     sample = prior.sample()
@@ -280,7 +291,7 @@ ax[1].fill_between(
 )
 ax[0].set_xlim(min(t), max(t))
 ax[1].set_xlim(200, 2048)
-ax[1].legend(loc='lower left', frameon=False)
+ax[1].legend(loc="lower left", frameon=False)
 ax[1].grid(False)
 plt.tight_layout()
 plt.savefig("injection.png")
@@ -305,9 +316,10 @@ likelihood = bilby.gw.likelihood.GravitationalWaveTransient(
 result = bilby.run_sampler(
     likelihood=likelihood,
     priors=prior,
-    sampler="emcee",
+    sampler="dynesty",
     outdir=outdir,
     label=label,
     clean=True,
-    iterations=1000,
+    # iterations=1000,
+    nlive=10,
 )

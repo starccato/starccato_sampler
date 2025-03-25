@@ -8,13 +8,24 @@ import matplotlib.pyplot as plt
 def plot_1d_marginals(
     inf_object: az.InferenceData, outdir: str, color="lightblue"
 ):
-    zdim = inf_object.posterior["z"].shape[-1]
     zpost = inf_object.posterior["z"].stack(sample=("chain", "draw")).values.T
-    figsize = (3, zdim * 0.25)
+    if "true_latent" in inf_object.sample_stats:
+        true_z = inf_object.sample_stats["true_latent"].to_numpy().ravel()
+    else:
+        true_z = None
+
+    fig, ax = _plot_marginals(zpost, trues=true_z, color=color)
+    plt.savefig(os.path.join(outdir, "1d_marginals.png"))
+    plt.close()
+
+
+def _plot_marginals(samples, trues=None, color="tab:orange"):
+    dim = samples.shape[-1]
+    figsize = (3, dim * 0.25)
     # plot a vertical violin plot of the zpost
     fig, ax = plt.subplots(figsize=figsize)
     boxplot = ax.boxplot(
-        zpost,
+        samples,
         vert=False,
         patch_artist=True,
         showfliers=False,
@@ -33,15 +44,14 @@ def plot_1d_marginals(
     )
     ax.set_ylabel("Z idx")
     ax.set_xlabel("Z value")
-    if "true_latent" in inf_object.sample_stats:
-        true_z = inf_object.sample_stats["true_latent"].to_numpy().ravel()
+    if trues is not None:
         # draw a short line at the true z value for each box
         box_height = (
             boxplot["medians"][0].get_ydata()[1]
             - boxplot["medians"][0].get_ydata()[0]
         ) * 3
         for i, true_val in enumerate(
-            true_z, start=1
+            trues, start=1
         ):  # Boxplots are indexed from 1
             ax.vlines(
                 x=true_val,
@@ -51,5 +61,5 @@ def plot_1d_marginals(
                 linewidth=2,
                 zorder=10,
             )
-    plt.savefig(os.path.join(outdir, "1d_marginals.png"))
-    plt.close()
+
+    return fig, ax
