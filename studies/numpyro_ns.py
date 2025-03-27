@@ -1,3 +1,8 @@
+"""
+pip install numpyro jaxns arviz
+
+"""
+
 import os
 import time
 
