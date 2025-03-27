@@ -17,6 +17,8 @@ from matplotlib import pyplot as plt
 from scipy.stats import norm
 from starccato_jax import StarccatoVAE
 
+from starccato_sampler.sampler import sample
+
 plt.style.use("seaborn-v0_8-poster")
 
 rstate = np.random.default_rng(56101)
@@ -38,10 +40,8 @@ def loglike(theta):
 
 
 def prior_transform(utheta):
-    u = norm.ppf(
-        utheta
-    )  # Transform from uniform to standard normal... i think?
-    return u
+    # Transform from uniform to standard normal... i think?
+    return norm.ppf(uthetas)
 
 
 def plot_marginals(samples, trues=None, color="tab:orange"):
@@ -84,7 +84,6 @@ def plot_marginals(samples, trues=None, color="tab:orange"):
                 linewidth=2,
                 zorder=10,
             )
-
     return fig, ax
 
 
@@ -126,33 +125,44 @@ x = np.arange(N)
 
 plot_data(y, y_true, fname=f"{OUTDIR}/data.png")
 
-dsampler = dynesty.NestedSampler(
-    loglike,
-    prior_transform,
-    ndim=MODEL.latent_dim,
-    rstate=rstate,
-    nlive=5,
-    gradient=jax.grad(loglike),
-    bound="none",
-    sample="hslice",
-    slices=5,
+# dsampler = dynesty.NestedSampler(
+#     loglike,
+#     prior_transform,
+#     ndim=MODEL.latent_dim,
+#     rstate=rstate,
+#     nlive=5,
+#     gradient=jax.grad(loglike),
+#     bound="none",
+#     sample="hslice",
+#     slices=5,
+# )
+# dsampler.run_nested(dlogz=0.01)
+# dres = dsampler.results
+#
+# fig, axes = dyplot.runplot(dres, color="red", logplot=True)
+# fig.tight_layout()
+# fig.savefig(f"{OUTDIR}/diagnostics.png")
+#
+# fig, ax = plot_marginals(dres.samples, trues=z_true, color="tab:red")
+# fig.tight_layout()
+# fig.savefig(f"{OUTDIR}/marginals.png")
+#
+# plot_data(
+#     y,
+#     y_true,
+#     z_samples=dres.samples,
+#     fname=f"{OUTDIR}/posterior_predictive.png",
+# )
+#
+# print(dres.summary())
+
+
+sample(
+    data=y,
+    model=MODEL,
+    rng_int=0,
+    outdir=OUTDIR,
+    noise_sigma=NOISE_SIGMA,
+    stepping_stone_lnz=True,
+    n_temps=16,
 )
-dsampler.run_nested(dlogz=0.01)
-dres = dsampler.results
-
-fig, axes = dyplot.runplot(dres, color="red", logplot=True)
-fig.tight_layout()
-fig.savefig(f"{OUTDIR}/diagnostics.png")
-
-fig, ax = plot_marginals(dres.samples, trues=z_true, color="tab:red")
-fig.tight_layout()
-fig.savefig(f"{OUTDIR}/marginals.png")
-
-plot_data(
-    y,
-    y_true,
-    z_samples=dres.samples,
-    fname=f"{OUTDIR}/posterior_predictive.png",
-)
-
-print(dres.summary())

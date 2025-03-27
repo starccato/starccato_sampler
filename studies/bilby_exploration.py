@@ -318,8 +318,10 @@ result = bilby.run_sampler(
     priors=prior,
     sampler="dynesty",
     outdir=outdir,
-    label=label,
+    label=label + "v2",
     clean=True,
     # iterations=1000,
-    nlive=10,
+    nlive=5,
+    bound="single",
+    sample="rslice",
 )
