@@ -68,3 +68,5 @@ def sample(
         **lnz_kwargs,
     )
     return mcmc
+
+

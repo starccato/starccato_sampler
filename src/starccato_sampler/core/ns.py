@@ -1,46 +1,43 @@
-"""
-pip install numpyro jaxns arviz
 
-"""
-
-import os
-
-import arviz as az
+from numpyro.infer import MCMC, NUTS
 import jax.numpy as jnp
-import jax.random
-import numpy as np
+import jax.random as random
 import numpyro
+import numpyro.distributions as dist
 from jax.random import PRNGKey
+
+from starccato_jax.starccato_model import StarccatoModel
+from jaxtyping import Array
 from numpyro.contrib.nested_sampling import NestedSampler
-from starccato_jax import StarccatoVAE
-from tqdm.auto import tqdm
-
-from starccato_sampler.core import _bayesian_model
-from starccato_sampler.sampler import sample
-
-numpyro.enable_x64(False)
-
-noise_sigma = 1.0
-starccato_model = StarccatoVAE()
-rng = PRNGKey(0)
-beta = 1.0
-
-z_true = jnp.array(np.random.normal(0, 1, (1, starccato_model.latent_dim)))
-y_true = starccato_model.generate(z=z_true, rng=rng)[0]
-y_obs = y_true + jax.random.normal(rng, y_true.shape) * noise_sigma
-
-OUT = "output2"
-os.makedirs(OUT, exist_ok=True)
-
-RESULT_FILE = f"{OUT}/lnz_results.txt"
-
-# write header
-with open(RESULT_FILE, "w") as f:
-    f.write("NS_LnZ SS_LnZ\n")
+from .bayesian_functions import _bayesian_model
 
 
-def run_analysis(i):
-    rng = PRNGKey(i)
+def _run_ns(
+    y_obs: jnp.ndarray,
+    starccato_model: StarccatoModel,
+    num_samples: int,
+    num_warmup: int,
+    num_chains: int,
+    rng: PRNGKey,
+    beta: float = 1.0,
+    progress_bar: bool = False,
+    noise_sigma: float = 1.0,
+    reference_prior: Array = None
+) -> MCMC:
+    """
+    Run MCMC sampling.
+
+    Parameters:
+      y_obs       : observed data.
+      vae_data    : model data (e.g. containing latent_dim).
+      num_samples : number of samples to draw.
+      num_warmup  : number of warmup steps.
+      num_chains  : number of chains.
+      rng         : random number generator.
+      beta        : tempering parameter; beta=1 corresponds to full posterior.
+    """
+
+    rng = random.PRNGKey(rng_int)
     ns = NestedSampler(
         _bayesian_model, constructor_kwargs=dict(max_samples=5000)
     )
@@ -77,3 +74,4 @@ def run_analysis(i):
 
 for i in tqdm(range(100)):
     run_analysis(i)
+
