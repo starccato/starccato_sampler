@@ -30,6 +30,7 @@ dependencies = [
     "pandas",
     "h5py",
     "numpyro",
+    "jaxns",
     "arviz",
     "corner",
     "pillow",

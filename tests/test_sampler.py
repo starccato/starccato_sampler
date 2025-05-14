@@ -28,17 +28,18 @@ def test_sampler(injection, outdir):
             model,
             rng_int=0,
             outdir=f"{outdir}/{model}",
-            num_warmup=50,
-            num_samples=100,
+            num_warmup=500,
+            num_samples=5000,
             num_chains=1,
             verbose=True,
+            ns_lnz=True,
             stepping_stone_lnz=False,
             truth=dict(signal=true_signal, latent=true_z),
         )
         assert os.path.exists(outdir)
-        assert os.path.exists(os.path.join(outdir, "inference.nc"))
-        assert os.path.exists(os.path.join(outdir, "ci_plot.png"))
-        assert os.path.exists(os.path.join(outdir, "1d_marginals.png"))
+        assert os.path.exists(f"{outdir}/{model}/inference.nc")
+        assert os.path.exists(f"{outdir}/{model}/ci_plot.png")
+        assert os.path.exists(f"{outdir}/{model}/1d_marginals.png")
 
     plot_pe_comparison(
         data_1d=true_signal,

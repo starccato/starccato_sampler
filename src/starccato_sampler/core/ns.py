@@ -17,13 +17,13 @@ def _run_ns(
     starccato_model: StarccatoModel,
     num_samples: int,
     num_warmup: int,
-    num_chains: int,
     rng: PRNGKey,
+    num_chains: int = 1,
     beta: float = 1.0,
     progress_bar: bool = False,
     noise_sigma: float = 1.0,
     reference_prior: Array = None
-) -> MCMC:
+) -> NestedSampler:
     """
     Run MCMC sampling.
 
@@ -36,10 +36,8 @@ def _run_ns(
       rng         : random number generator.
       beta        : tempering parameter; beta=1 corresponds to full posterior.
     """
-
-    rng = random.PRNGKey(rng_int)
     ns = NestedSampler(
-        _bayesian_model, constructor_kwargs=dict(max_samples=5000)
+        _bayesian_model, constructor_kwargs=dict(max_samples=num_samples)
     )
     ns.run(
         rng,
@@ -52,26 +50,5 @@ def _run_ns(
     ns.print_summary()
     ns_lnz = ns._results.log_Z_mean
     # TODO: save as arviz inference object --> netcdf
-    # all our postprocessing is done on the netcdf file
 
-    mcmc_out = f"{OUT}/mcmc_{i}"
-    os.makedirs(mcmc_out, exist_ok=True)
-    sample(
-        data=y_obs,
-        starccato_model=starccato_model,
-        rng_int=i,
-        outdir=mcmc_out,
-        stepping_stone_lnz=True,
-        noise_sigma=noise_sigma,
-    )
-    inf_obj = az.from_netcdf(f"{mcmc_out}/inference.nc")
-    ss_lnz = float(inf_obj.sample_stats["ss_lnz"])
-
-    # append the results to a file
-    with open(RESULT_FILE, "a") as f:
-        f.write(f"{ns_lnz} {ss_lnz}\n")
-
-
-for i in tqdm(range(100)):
-    run_analysis(i)
-
+    return ns
