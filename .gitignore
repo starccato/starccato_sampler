@@ -20,6 +20,7 @@ test_output
 # C extensions
 *.so
 studies/outdir/
+tests/test_output*
 
 # Distribution / packaging
 .Python
