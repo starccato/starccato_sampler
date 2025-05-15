@@ -12,7 +12,6 @@ from starccato_jax.credible_intervals import coverage_probability, pointwise_ci
 from starccato_jax.starccato_model import StarccatoModel
 from tqdm.auto import tqdm
 
-
 from .core import _run_mcmc
 from .post_proc import _post_process
 
@@ -39,6 +38,8 @@ def sample(
 
     if starccato_model is None:
         starccato_model = StarccatoVAE()
+    elif isinstance(starccato_model, str):
+        starccato_model = StarccatoVAE(starccato_model)
 
     mcmc_kwgs = dict(
         y_obs=data,

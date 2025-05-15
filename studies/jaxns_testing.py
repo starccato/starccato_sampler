@@ -9,6 +9,7 @@ from jaxns import (
     plot_diagnostics,
     summary,
 )
+from starccato_jax import StarccatoVAE
 
 tfpd = tfp.distributions
 
@@ -64,12 +65,12 @@ def main():
     model = create_model(MODEL, y_obs)
 
     # Sanity check the model
-    model.sanity_check(rng_key, S=100)
+    model.sanity_check(rng_key, S=10)
 
     # Setup nested sampler
     ns = NestedSampler(
         model=model,
-        max_samples=1e5,
+        max_samples=1e4,
         k=50,  # Number of live points
         c=50,  # Number of MCMC steps
         s=50,  # Number of slices
@@ -83,9 +84,9 @@ def main():
     summary(results)
     plot_diagnostics(results)
 
-    # Corner plot with true values
-    param_names = [f"z_{i}" for i in range(MODEL.latent_dim)]
-    plot_cornerplot(results, save_name="cornerplot.png")
+    # # Corner plot with true values
+    # param_names = [f"z_{i}" for i in range(MODEL.latent_dim)]
+    # plot_cornerplot(results, save_name="cornerplot.png")
 
 
 if __name__ == "__main__":

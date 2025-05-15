@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore", "Wswiglal-redir-stdio")
 # These are fixed by the resolution in the injection file that we are using.
 
 sampling_frequency = 4096
-n_timestamps = 256
+n_timestamps = 512
 duration = n_timestamps / sampling_frequency
 time = np.linspace(0, duration, n_timestamps)
 t0 = time[53]  # This is the time of the core-bounce

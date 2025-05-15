@@ -8,7 +8,6 @@ from bilby.core.prior import DeltaFunction, Normal, PriorDict, Uniform
 from bilby.gw import utils as gwutils
 from jax import numpy as jnp
 from jax.random import PRNGKey
-
 from starccato_jax import StarccatoVAE
 from starccato_jax.data import load_training_data
 
@@ -38,7 +37,7 @@ def generate_analysis_data():
     warnings.filterwarnings("ignore", "Wswiglal-redir-stdio")
 
     sampling_frequency = 4096
-    n_timestamps = 256
+    n_timestamps = 512
     duration = n_timestamps / sampling_frequency
     time = np.linspace(0, duration, n_timestamps)
     t0 = time[53]
@@ -61,7 +60,9 @@ def generate_analysis_data():
     prior = PriorDict(
         dict(
             **get_latent_vector_prior(),
-            luminosity_distance=Uniform(2, 40, "luminosity_distance", unit="kpc"),
+            luminosity_distance=Uniform(
+                2, 40, "luminosity_distance", unit="kpc"
+            ),
             ra=Uniform(0, 2 * np.pi, "ra", boundary="periodic"),
             dec=Uniform(-np.pi / 2, np.pi / 2, "dec", boundary="periodic"),
             geocent_time=Uniform(
@@ -97,21 +98,33 @@ def generate_analysis_data():
         return new_params, parameters
 
     class WaveformGenerator(bilby.gw.waveform_generator.WaveformGenerator):
-        def _calculate_strain(self, model, model_data_points, transformation_function, transformed_model,
-                              transformed_model_data_points, parameters):
+        def _calculate_strain(
+            self,
+            model,
+            model_data_points,
+            transformation_function,
+            transformed_model,
+            transformed_model_data_points,
+            parameters,
+        ):
             if parameters is not None:
                 self.parameters = parameters
             if model is not None:
-                model_strain = self._strain_from_model(model_data_points, model)
+                model_strain = self._strain_from_model(
+                    model_data_points, model
+                )
             elif transformed_model is not None:
-                model_strain = self._strain_from_transformed_model(transformed_model_data_points, transformed_model,
-                                                                   transformation_function)
+                model_strain = self._strain_from_transformed_model(
+                    transformed_model_data_points,
+                    transformed_model,
+                    transformation_function,
+                )
             else:
                 raise RuntimeError("No source model given")
-            self._cache['waveform'] = model_strain
-            self._cache['parameters'] = self.parameters.copy()
-            self._cache['model'] = model
-            self._cache['transformed_model'] = transformed_model
+            self._cache["waveform"] = model_strain
+            self._cache["parameters"] = self.parameters.copy()
+            self._cache["model"] = model
+            self._cache["transformed_model"] = transformed_model
             return model_strain
 
     waveform_generator = WaveformGenerator(
@@ -145,7 +158,10 @@ def generate_analysis_data():
 
     signals_td = []
     signals_fd = []
-    df = ifos[0].strain_data.frequency_array[1] - ifos[0].strain_data.frequency_array[0]
+    df = (
+        ifos[0].strain_data.frequency_array[1]
+        - ifos[0].strain_data.frequency_array[0]
+    )
     fmask = ifos[0].strain_data.frequency_mask
     for i in range(100):
         sample = prior.sample()
@@ -179,27 +195,42 @@ def generate_analysis_data():
     )
     ax[0].set_xlim(min(t), max(t))
     ax[1].set_xlim(200, 2048)
-    ax[1].legend(loc='lower left', frameon=False)
+    ax[1].legend(loc="lower left", frameon=False)
     ax[1].grid(False)
     plt.tight_layout()
     plt.savefig("injection.png")
     return AnalysisData(
-        frequencies=jnp.array(ifos[0].strain_data.frequency_array[ifos[0].strain_data.frequency_mask]),
+        frequencies=jnp.array(
+            ifos[0].strain_data.frequency_array[
+                ifos[0].strain_data.frequency_mask
+            ]
+        ),
         timepoints=jnp.array(ifos[0].strain_data.time_array),
-        psd=jnp.array(ifos[0].amplitude_spectral_density_array[ifos[0].strain_data.frequency_mask]),
+        psd=jnp.array(
+            ifos[0].amplitude_spectral_density_array[
+                ifos[0].strain_data.frequency_mask
+            ]
+        ),
         timeseries_data=jnp.array(ifos[0].strain_data.time_domain_strain),
         true_timeseries=jnp.array(injection_strain_time["plus"]),
-        freqseries_data=jnp.array(ifos[0].strain_data.frequency_domain_strain[ifos[0].strain_data.frequency_mask]),
+        freqseries_data=jnp.array(
+            ifos[0].strain_data.frequency_domain_strain[
+                ifos[0].strain_data.frequency_mask
+            ]
+        ),
         true_freqseries=jnp.array(injection_strain["plus"]),
-        fmask=jnp.array(ifos[0].strain_data.frequency_mask)
+        fmask=jnp.array(ifos[0].strain_data.frequency_mask),
     )
 
-def plot_freq_domain(ifo: bilby.gw.detector.Interferometer, freq_signal, ax=None):
+
+def plot_freq_domain(
+    ifo: bilby.gw.detector.Interferometer, freq_signal, ax=None
+):
     if ax is None:
         fig, ax = plt.subplots()
     fig = ax.get_figure()
     df = (
-            ifo.strain_data.frequency_array[1] - ifo.strain_data.frequency_array[0]
+        ifo.strain_data.frequency_array[1] - ifo.strain_data.frequency_array[0]
     )
     asd = gwutils.asd_from_freq_series(
         freq_data=ifo.strain_data.frequency_domain_strain, df=df
