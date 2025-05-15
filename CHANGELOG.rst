@@ -5,16 +5,80 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.13:
+
+v0.0.13 (2025-05-15)
+====================
+
+Bug Fixes
+---------
+
+* fix: add nested sampling
+
+Add nested sampling for LnZ estimation
+Merge #1 (`0570291`_)
+
+Unknown
+-------
+
+* add jaxtyping (`56a438a`_)
+
+* add ns->arviz (`1a5f7ae`_)
+
+* convert NS-->az.inf-obj (`a917e2b`_)
+
+* start to add nested sampling (`b0d7f7c`_)
+
+* add NS (`4617c25`_)
+
+* hacking on NS (`0bd7ec1`_)
+
+* added dynesty result (`3bc65d2`_)
+
+* save test reults for diffferent brarnches (`56897e6`_)
+
+* add gss (`f49623f`_)
+
+* check ss lnz (`1099c33`_)
+
+* hacking with mehdi (`c5e0663`_)
+
+* move out the lnl (`d3e43a4`_)
+
+.. _0570291: https://github.com/starccato/starccato_sampler/commit/05702912a1a51f38602c285511069934db9e5875
+.. _56a438a: https://github.com/starccato/starccato_sampler/commit/56a438a2a6f7b5ded91bc709f9fcf0966c552dd6
+.. _1a5f7ae: https://github.com/starccato/starccato_sampler/commit/1a5f7ae218c86fc0e1dc5f5089647d2ddff7f084
+.. _a917e2b: https://github.com/starccato/starccato_sampler/commit/a917e2b427af96325e2fc8eaf5886d07cbdd494d
+.. _b0d7f7c: https://github.com/starccato/starccato_sampler/commit/b0d7f7c4f9c969f50c2ae6925efe5c3007aeb09e
+.. _4617c25: https://github.com/starccato/starccato_sampler/commit/4617c25d5614ac007dce7cd1fda9d959108b1cc2
+.. _0bd7ec1: https://github.com/starccato/starccato_sampler/commit/0bd7ec11fcae1f0c7ceee7f4691a534649ee7e48
+.. _3bc65d2: https://github.com/starccato/starccato_sampler/commit/3bc65d23c9c80d33196bc4fa19cd061c4d8680d9
+.. _56897e6: https://github.com/starccato/starccato_sampler/commit/56897e6b63afb952e166cde15c61926c75dd09c0
+.. _f49623f: https://github.com/starccato/starccato_sampler/commit/f49623f022d828edc169baf63ce7529de34d4572
+.. _1099c33: https://github.com/starccato/starccato_sampler/commit/1099c33c85737afc885c0208d0a74ea866ad65d8
+.. _c5e0663: https://github.com/starccato/starccato_sampler/commit/c5e0663991932e10ed1dae7dadbdedd40e01ee9e
+.. _d3e43a4: https://github.com/starccato/starccato_sampler/commit/d3e43a4ab2038b79883b95d7373f626d1bb23da2
+
+
 .. _changelog-v0.0.12:
 
 v0.0.12 (2025-03-11)
 ====================
 
+Chores
+------
+
+* chore(release): 0.0.12 (`af7f5d9`_)
+
 Unknown
 -------
 
+* cleaup postproc (`fc8bf99`_)
+
 * Merge branch 'main' of github.com:starccato/starccato_sampler (`e78a2bb`_)
 
+.. _af7f5d9: https://github.com/starccato/starccato_sampler/commit/af7f5d99c2f584992f8a365c7726ea3ebdb2f616
+.. _fc8bf99: https://github.com/starccato/starccato_sampler/commit/fc8bf990bf0b006d48ce76fc3535666590e51d5e
 .. _e78a2bb: https://github.com/starccato/starccato_sampler/commit/e78a2bb939ea24ae7c3db891204f1c9daf0faacb
 
 

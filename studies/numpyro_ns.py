@@ -4,24 +4,21 @@ pip install numpyro jaxns arviz
 """
 
 import os
-import time
 
 import arviz as az
 import jax.numpy as jnp
 import jax.random
 import numpy as np
 import numpyro
-import numpyro.distributions as dist
 from jax.random import PRNGKey
 from numpyro.contrib.nested_sampling import NestedSampler
-from numpyro.infer import MCMC, NUTS, DiscreteHMCGibbs
 from starccato_jax import StarccatoVAE
 from tqdm.auto import tqdm
 
 from starccato_sampler.core import _bayesian_model
 from starccato_sampler.sampler import sample
 
-numpyro.enable_x64(True)
+numpyro.enable_x64(False)
 
 noise_sigma = 1.0
 starccato_model = StarccatoVAE()
