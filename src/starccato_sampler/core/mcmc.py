@@ -1,14 +1,12 @@
 
 from numpyro.infer import MCMC, NUTS
 import jax.numpy as jnp
-import jax.random as random
-import numpyro
-import numpyro.distributions as dist
 from jax.random import PRNGKey
 
 from starccato_jax.starccato_model import StarccatoModel
 from jaxtyping import Array
 from .bayesian_functions import _bayesian_model
+import arviz as az
 
 
 def _run_mcmc(
@@ -22,7 +20,7 @@ def _run_mcmc(
     progress_bar: bool = False,
     noise_sigma: float = 1.0,
     reference_prior: Array = None
-) -> MCMC:
+) -> az.InferenceData:
     """
     Run MCMC sampling.
 
@@ -48,4 +46,4 @@ def _run_mcmc(
         progress_bar=progress_bar,
     )
     mcmc.run(rng, y_obs=y_obs)
-    return mcmc
+    return az.from_numpyro(mcmc)

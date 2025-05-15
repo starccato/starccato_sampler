@@ -1,11 +1,8 @@
-
-from numpyro.infer import MCMC, NUTS
 import jax.numpy as jnp
-import jax.random as random
-import numpyro
-import numpyro.distributions as dist
+import jax.random
 from jax.random import PRNGKey
-
+import numpy as np
+import arviz as az
 from starccato_jax.starccato_model import StarccatoModel
 from jaxtyping import Array
 from numpyro.contrib.nested_sampling import NestedSampler
@@ -13,17 +10,17 @@ from .bayesian_functions import _bayesian_model
 
 
 def _run_ns(
-    y_obs: jnp.ndarray,
-    starccato_model: StarccatoModel,
-    num_samples: int,
-    num_warmup: int,
-    rng: PRNGKey,
-    num_chains: int = 1,
-    beta: float = 1.0,
-    progress_bar: bool = False,
-    noise_sigma: float = 1.0,
-    reference_prior: Array = None
-) -> NestedSampler:
+        y_obs: jnp.ndarray,
+        starccato_model: StarccatoModel,
+        num_samples: int,
+        num_warmup: int,
+        rng: PRNGKey,
+        num_chains: int = 1,
+        beta: float = 1.0,
+        progress_bar: bool = False,
+        noise_sigma: float = 1.0,
+        reference_prior: Array = None
+) -> az.InferenceData:
     """
     Run MCMC sampling.
 
@@ -48,7 +45,28 @@ def _run_ns(
         rng=rng,
     )
     ns.print_summary()
-    ns_lnz = ns._results.log_Z_mean
-    # TODO: save as arviz inference object --> netcdf
+    return _to_inference_obj(ns, rng, num_samples, starccato_model.latent_dim)
 
-    return ns
+
+def _to_inference_obj(ns_obj: NestedSampler, rng: jax.random.PRNGKey, num_samples: int, ndim: int):
+    post = ns_obj.get_samples(rng, num_samples=num_samples)
+    lnl = post["untempered_loglike"][np.newaxis, :]
+    stats = dict(
+        ESS=int(ns_obj._results.ESS),
+        num_samples=ns_obj._results.total_num_samples,
+        num_lnl_evals=ns_obj._results.total_num_likelihood_evaluations,
+        ns_lnz=ns_obj._results.log_Z_mean,
+        ns_lnz_uncertainty=ns_obj._results.log_Z_uncert,
+    )
+    return az.from_dict(
+        posterior=dict(
+            z=post["z"][np.newaxis, :, :],
+            untempered_loglike=lnl,
+        ),
+        coords=dict(z_dim_0=np.arange(ndim)),
+        dims=dict(z=["z_dim_0"]),
+        sample_stats=stats,
+        log_likelihood=dict(
+            likelihood=lnl,
+        )
+    )

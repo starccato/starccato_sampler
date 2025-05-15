@@ -6,13 +6,8 @@ import arviz as az
 import jax.numpy as jnp
 import jax.random as random
 import numpy as np
-from numpyro.infer import MCMC, NUTS
 from starccato_jax import StarccatoVAE
-from starccato_jax.credible_intervals import coverage_probability, pointwise_ci
 from starccato_jax.starccato_model import StarccatoModel
-from tqdm.auto import tqdm
-
-
 from .core import _run_mcmc, _run_ns
 from .post_proc import _post_process
 
@@ -32,7 +27,7 @@ def sample(
     verbose=True,
     truth=None,
     **lnz_kwargs,
-) -> MCMC:
+) -> az.InferenceData:
     """
     Sample latent variables given the data.
     """
@@ -53,17 +48,13 @@ def sample(
     t0 = process_time()
 
     if ns_lnz:
-        ns_obj = _run_ns(**sampler_kwgs)
-        #FIXME: this is not the right way to set up the posterior for az... (Dimensions:             (chain: 5000, draw: 5000))
-        inf_object = az.from_dict(
-            posterior=ns_obj.get_samples(rng, num_samples),
-            sample_stats=dict(ESS=int(ns_obj._results.ESS), num_samples=ns_obj._results.total_num_samples, num_lnl_evals=ns_obj._results.total_num_likelihood_evaluations),
-        )
+        inf_object = _run_ns(**sampler_kwgs)
+
     else:
-        mcmc_obj = _run_mcmc(
+        inf_object = _run_mcmc(
             **sampler_kwgs, beta=1.0, num_chains=num_chains, progress_bar=verbose
         )
-        inf_object = az.from_numpyro(mcmc_obj)
+
     inf_object.sample_stats["sampling_runtime"] = process_time() - t0
 
     _post_process(
