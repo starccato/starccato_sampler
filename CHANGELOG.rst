@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.15:
+
+v0.0.15 (2025-05-28)
+====================
+
+Unknown
+-------
+
+* Merge branch 'main' of github.com:starccato/starccato_sampler (`65d7144`_)
+
+.. _65d7144: https://github.com/starccato/starccato_sampler/commit/65d71445f52af4f5ded4a255dc1db64a53400026
+
+
 .. _changelog-v0.0.14:
 
 v0.0.14 (2025-05-15)
@@ -13,9 +26,21 @@ v0.0.14 (2025-05-15)
 Bug Fixes
 ---------
 
+* fix: add plottign tools (`d808886`_)
+
+* fix: add plottign tools (`5ccb013`_)
+
 * fix: allow NS with blip' (`2eb8372`_)
 
+Chores
+------
+
+* chore(release): 0.0.14 (`05f99e4`_)
+
+.. _d808886: https://github.com/starccato/starccato_sampler/commit/d808886baf8a5fc20df274c9dc572da1fc60f3ae
+.. _5ccb013: https://github.com/starccato/starccato_sampler/commit/5ccb013a86f399ebf772a7a4fc09222f1ded9383
 .. _2eb8372: https://github.com/starccato/starccato_sampler/commit/2eb8372d4ac919847ece0e9fec417261bc53010e
+.. _05f99e4: https://github.com/starccato/starccato_sampler/commit/05f99e46ffd072d2722b6ee4973cdfb988a7b998
 
 
 .. _changelog-v0.0.13:
