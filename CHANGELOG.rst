@@ -5,6 +5,19 @@ CHANGELOG
 =========
 
 
+.. _changelog-v0.0.14:
+
+v0.0.14 (2025-05-15)
+====================
+
+Bug Fixes
+---------
+
+* fix: allow NS with blip' (`2eb8372`_)
+
+.. _2eb8372: https://github.com/starccato/starccato_sampler/commit/2eb8372d4ac919847ece0e9fec417261bc53010e
+
+
 .. _changelog-v0.0.13:
 
 v0.0.13 (2025-05-15)
@@ -18,6 +31,11 @@ Bug Fixes
 Add nested sampling for LnZ estimation
 Merge #1 (`0570291`_)
 
+Chores
+------
+
+* chore(release): 0.0.13 (`8148108`_)
+
 Unknown
 -------
 
@@ -28,6 +46,8 @@ Unknown
 * convert NS-->az.inf-obj (`a917e2b`_)
 
 * start to add nested sampling (`b0d7f7c`_)
+
+* allow usage of blip model (`c0c9c03`_)
 
 * add NS (`4617c25`_)
 
@@ -46,10 +66,12 @@ Unknown
 * move out the lnl (`d3e43a4`_)
 
 .. _0570291: https://github.com/starccato/starccato_sampler/commit/05702912a1a51f38602c285511069934db9e5875
+.. _8148108: https://github.com/starccato/starccato_sampler/commit/8148108bb036a91d7df54256078af0555c9aaea0
 .. _56a438a: https://github.com/starccato/starccato_sampler/commit/56a438a2a6f7b5ded91bc709f9fcf0966c552dd6
 .. _1a5f7ae: https://github.com/starccato/starccato_sampler/commit/1a5f7ae218c86fc0e1dc5f5089647d2ddff7f084
 .. _a917e2b: https://github.com/starccato/starccato_sampler/commit/a917e2b427af96325e2fc8eaf5886d07cbdd494d
 .. _b0d7f7c: https://github.com/starccato/starccato_sampler/commit/b0d7f7c4f9c969f50c2ae6925efe5c3007aeb09e
+.. _c0c9c03: https://github.com/starccato/starccato_sampler/commit/c0c9c03e8e9a32bc3d296466e473091d3aeee6fe
 .. _4617c25: https://github.com/starccato/starccato_sampler/commit/4617c25d5614ac007dce7cd1fda9d959108b1cc2
 .. _0bd7ec1: https://github.com/starccato/starccato_sampler/commit/0bd7ec11fcae1f0c7ceee7f4691a534649ee7e48
 .. _3bc65d2: https://github.com/starccato/starccato_sampler/commit/3bc65d23c9c80d33196bc4fa19cd061c4d8680d9
