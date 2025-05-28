@@ -1,4 +1,5 @@
 from time import process_time
+from typing import Union
 
 import arviz as az
 import jax.numpy as jnp
@@ -12,7 +13,7 @@ from .post_proc import _post_process
 
 def sample(
     data: jnp.ndarray,
-    starccato_model: StarccatoModel = None,
+    starccato_model: Union[StarccatoModel, str] = None,
     rng_int: int = 0,
     outdir="out_sampler",
     num_warmup=500,

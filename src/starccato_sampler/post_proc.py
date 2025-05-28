@@ -29,6 +29,7 @@ def _post_process(
     outdir,
     stepping_stone_lnz=False,
     gss_lnz=False,
+    save_plots=True,
     **lnz_kwargs,
 ):
     """Handles post-processing of the inference object."""
@@ -48,7 +49,8 @@ def _post_process(
         _add_gss_lnz(mcmc_kwgs, outdir, inf_object, **lnz_kwargs)
 
     os.makedirs(outdir, exist_ok=True)
-    _save_plots(inf_object, outdir, vae)
+    if save_plots:
+        _save_plots(inf_object, outdir, vae)
     inf_object.to_netcdf(os.path.join(outdir, "inference.nc"))
 
 

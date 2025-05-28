@@ -10,15 +10,6 @@ from starccato_sampler.sampler import sample
 RNG = jax.random.PRNGKey(0)
 
 
-@pytest.fixture
-def injection():
-    vae = StarccatoVAE()
-    # true_z = jax.random.normal(RNG, (1, vae.latent_dim))
-    true_z = jax.numpy.zeros((1, vae.latent_dim))
-    true_signal = vae.generate(z=true_z)[0]
-    return true_signal, true_z.ravel()
-
-
 def test_sampler(injection, outdir):
     true_signal, true_z = injection
     models = [StarccatoVAE(), StarccatoPCA()]

@@ -1,7 +1,9 @@
 import os
 import subprocess
 
+import jax
 import pytest
+from starccato_jax import StarccatoVAE
 
 
 @pytest.fixture
@@ -20,3 +22,12 @@ def _get_branch_name() -> str:
     )
     branch = result.stdout.strip() if result.returncode == 0 else "main"
     return branch
+
+
+@pytest.fixture
+def injection():
+    vae = StarccatoVAE()
+    # true_z = jax.random.normal(RNG, (1, vae.latent_dim))
+    true_z = jax.numpy.zeros((1, vae.latent_dim))
+    true_signal = vae.generate(z=true_z)[0]
+    return true_signal, true_z.ravel()
